@@ -1,0 +1,30 @@
+// 默认样式表
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.el-select {
+  .el-input__wrapper,
+  &:hover:not(.el-select--disabled) .el-input__wrapper {
+    box-shadow: 0 4px 16px #e5e5ed;
+    border-radius: 8px;
+  }
+
+  .el-input {
+    --el-font-size-base: 12px;
+  }
+
+  .el-input__inner {
+    --el-input-inner-height: 40px;
+  }
+}

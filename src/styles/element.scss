@@ -1,0 +1,15 @@
+//全局主题色
+@forward 'element-plus/theme-chalk/src/common/var.scss' with ($colors: ('primary': ('base': #6b7aff), ));
+
+//修改组件样式变量
+:root {
+  .el-checkbox {
+    --el-checkbox-checked-text-color: #6b7aff;
+    --el-checkbox-checked-input-border-color: #6b7aff;
+    --el-checkbox-checked-bg-color: #6b7aff;
+    --el-checkbox-input-border-color-hover: #6b7aff;
+  }
+}
+
+// 如果你想导入所有样式:
+@use "element-plus/theme-chalk/src/index.scss" as *;
