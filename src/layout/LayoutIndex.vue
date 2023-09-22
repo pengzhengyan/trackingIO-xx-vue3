@@ -202,7 +202,7 @@ function handleMenuSelect(index: string) {
     <div class="Layout">
       <div class="sidebar-container">
         <div class="logo">
-          <img src="@/assets/images/public/logo.png" />
+            <img src="@/assets/images/public/logo-copy.png" />
         </div>
         <el-menu class="menu"
                  :default-active="menuDefaultActiveIndex"
