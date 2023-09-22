@@ -7,6 +7,9 @@ import { ref, computed, onBeforeMount } from 'vue'
 import { useMetrics } from '@/pinia/metrics'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
+// 引入导出Excel表格依赖
+import * as FileSaver from "file-saver";
+import * as XLSX from "xlsx";
 
 /** 存放指标的store */
 const metricsStore = useMetrics()
@@ -112,7 +115,40 @@ const selectChangeHandle = () => {
 /**
  * 数据表格展示相关内容
  */
+// 导出表格
+const exportExcel = () => {
+  /* 从表生成工作簿对象 */
+  const wb = XLSX.utils.table_to_book(document.querySelector(`#${tableInfo.id}`))
+  /* 获取二进制字符串作为输出 */
+  const wbout = XLSX.write(wb, {
+    bookType: "xlsx",
+    bookSST: true,
+    type: "array"
+  });
+  /* 获取表格日期 */
+  const dataStart = moment(datarange.value[0]*1000).format('YYYY/MM/DD')
+  const dataEnd = moment(datarange.value[1]*1000).format('YYYY/MM/DD')
+  try {
+    FileSaver.saveAs(
+      //Blob 对象表示一个不可变、原始数据的类文件对象。
+      //Blob 表示的不一定是JavaScript原生格式的数据。
+      //File 接口基于Blob，继承了 blob 的功能并将其扩展使其支持用户系统上的文件。
+      //返回一个新创建的 Blob 对象，其内容由参数中给定的数组串联组成。
+      new Blob([wbout], { type: "application/octet-stream" }),
+      //设置导出文件名称
+      `${tableInfo.name}-${dataStart}-${dataEnd}.xlsx`
+    );
+  } catch (e) {
+    if (typeof console !== "undefined") console.log(e, wbout);
+  }
+  return wbout;
+}
 
+// 表格信息
+const tableInfo = {
+  id: 'asaTable',
+  name: 'asa活动详情',
+}
 // 表格数据内容
 let asaData = ref([{
   actcount: '',
@@ -213,7 +249,7 @@ onBeforeMount(() => {
         <span>数据详情</span>
       </div>
       <div class="bread-right">
-        <div class='export'>
+        <div class='export' @click="exportExcel">
           <el-icon>
             <Download />
           </el-icon>
@@ -225,6 +261,7 @@ onBeforeMount(() => {
     <div class='table-content'>
       <el-table stripe
                 max-height='450'
+                :id='tableInfo.id'
                 :data='asaData'>
         <el-table-column :prop="tabActiveBar?.label"
                          :label="tabActiveBar?.text"

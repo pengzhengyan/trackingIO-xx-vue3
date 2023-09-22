@@ -12,12 +12,14 @@
     "@element-plus/icons-vue": "^2.1.0",
     "axios": "^1.5.0",
     "element-plus": "^2.3.12",
+    "file-saver": "^2.0.5",
     "moment": "^2.29.4",
     "pinia": "^2.1.6",
     "sortablejs": "^1.15.0",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4",
-    "vuedraggable": "^4.0.1"
+    "vuedraggable": "^4.0.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20.5.8",
