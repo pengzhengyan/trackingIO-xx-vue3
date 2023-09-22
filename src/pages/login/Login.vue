@@ -79,7 +79,9 @@ async function handleLogIn() {
       </div>
     </div>
     <div class="right-content">
-      <div class="logo">XINXINHUDONG</div>
+              <div class="logo">
+                COPING<span style='color: hotpink;'>I</span><span style='color: mediumpurple;'>O</span>
+              </div>
       <div class="enter-container">
         <div class="title">Sign In</div>
         <div class="description">Welcome back! Please enter your details</div>
