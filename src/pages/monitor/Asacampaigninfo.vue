@@ -2,17 +2,12 @@
   import MyTabbar from '@/components/MyTabbar.vue'
   import DateBar from '@/components/DateBar.vue'
   import MetricsConfig from '@/components/MetricsConfig.vue'
+  import MyTable from '@/components/MyTable.vue'
+  import FilesSaver from '@/components/FilesSaver.vue'
   import { getAsaData, getAsaList, getAsaCheck, getAsaMetrics } from '@/api/index.js'
   import { ref, computed, onBeforeMount } from 'vue'
   import { ElMessage } from 'element-plus'
-  // ElConfigProvider 组件
-  import { ElConfigProvider } from 'element-plus'
-  // 引入中文包
-  import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
   import moment from 'moment'
-  // 引入导出Excel表格依赖
-  import * as FileSaver from 'file-saver'
-  import * as XLSX from 'xlsx'
 
   /**
    * type
@@ -148,36 +143,7 @@
   /**
    * 数据表格展示相关内容
    */
-  // 导出表格
-  const exportExcel = () => {
-    /* 从表生成工作簿对象 */
-    const wb = XLSX.utils.table_to_book(document.querySelector(`#${tableInfo.id}`))
-    /* 获取二进制字符串作为输出 */
-    const wbout = XLSX.write(wb, {
-      bookType: 'xlsx',
-      bookSST: true,
-      type: 'array',
-    })
-    /* 获取表格日期 */
-    const dataStart = moment(datarange.value[0] * 1000).format('YYYY/MM/DD')
-    const dataEnd = moment(datarange.value[1] * 1000).format('YYYY/MM/DD')
-    try {
-      FileSaver.saveAs(
-        //Blob 对象表示一个不可变、原始数据的类文件对象。
-        //Blob 表示的不一定是JavaScript原生格式的数据。
-        //File 接口基于Blob，继承了 blob 的功能并将其扩展使其支持用户系统上的文件。
-        //返回一个新创建的 Blob 对象，其内容由参数中给定的数组串联组成。
-        new Blob([wbout], { type: 'application/octet-stream' }),
-        //设置导出文件名称
-        `${tableInfo.name}-${dataStart}-${dataEnd}.xlsx`
-      )
-    } catch (e) {
-      if (typeof console !== 'undefined') console.log(e, wbout)
-    }
-    return wbout
-  }
-
-  // 表格信息
+  // 表格信息，用于导出表格和el-table第一列的数据显示
   const tableInfo = {
     id: 'asaTable',
     name: 'asa活动详情',
@@ -197,7 +163,8 @@
       xhmoney: '0',
     },
   ])
-  // 表格选定的指标
+
+  // 表格选定的指标，通过向服务端请求获取
   const checkedMetrics = ref<string[]>([])
   // 表格选定指标的键值对
   const propKey = computed(() => {
@@ -221,21 +188,6 @@
     const lastItem = data.pop()
     data.unshift(lastItem)
     asaData.value = data
-  }
-
-  // 分页
-  const currentPage = ref(1)
-  const pageSize = ref(10)
-  const small = ref(false)
-  const background = ref(false)
-  const disabled = ref(false)
-  const total = computed(() => asaData.value.length)
-
-  const handleSizeChange = (val: number) => {
-    pageSize.value = val
-  }
-  const handleCurrentChange = (val: number) => {
-    currentPage.value = val
   }
 
   onBeforeMount(() => {
@@ -317,59 +269,32 @@
         <span>数据详情</span>
       </div>
       <div class="bread-right">
-        <div
-          class="export"
-          @click="exportExcel"
-        >
-          <el-icon>
-            <Download />
-          </el-icon>
-        </div>
+        <!-- 下载表格数据 -->
+        <FilesSaver
+          :datarange="datarange"
+          :tableInfo="tableInfo"
+        />
       </div>
     </div>
 
     <!-- 表格区 -->
-    <div class="table-content">
-      <el-table
-        stripe
-        max-height="450"
-        :id="tableInfo.id"
-        :data="asaData ? asaData.slice((currentPage - 1) * pageSize, currentPage * pageSize) : []"
-      >
-        <el-table-column
-          :prop="tabActiveBar?.label"
-          :label="tabActiveBar?.text"
-          width="180"
-        />
-        <el-table-column
-          v-for="item in propKey"
-          :key="item.key"
-          :prop="item.key"
-          :label="item.text"
-        />
-      </el-table>
-      <div class="pagination-container">
-        <el-config-provider :locale="zhCn">
-          <el-pagination
-            v-model:current-page="currentPage"
-            v-model:page-size="pageSize"
-            :page-sizes="[10, 20, 30, 50, 100]"
-            :small="small"
-            :disabled="disabled"
-            :background="background"
-            layout="total, sizes, prev, pager, next"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </el-config-provider>
-      </div>
-    </div>
+    <MyTable
+      :tableData="asaData"
+      :tableInfo="tableInfo"
+      :tabActiveBar="tabActiveBar"
+      :propKey="propKey"
+    />
   </div>
 </template>
 
 <style scoped lang="less">
   .Asacampaigninfo {
+    .topBox {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      flex: auto;
+    }
     .bread-types {
       display: flex;
       flex: auto;
@@ -382,30 +307,6 @@
           font-size: 12px;
         }
       }
-
-      .bread-right {
-        .export {
-          .el-icon {
-            font-size: 18px;
-            color: #babbc4;
-            cursor: pointer;
-          }
-        }
-      }
-    }
-
-    .table-content {
-      margin-top: 16px;
-      padding: 24px;
-      background: #fff;
-      border-radius: 8px;
-      -webkit-box-shadow: 0 8px 16px #e5e6ed;
-      box-shadow: 0 8px 16px #e5e6ed;
-      width: 100%;
-      overflow: auto;
-      .pagination-container {
-        padding-top: 16px;
-      }
     }
 
     :deep(.el-select) {
@@ -413,37 +314,6 @@
         .el-tag {
           background-color: #eff0ff;
           color: #2d2f4e;
-        }
-      }
-    }
-
-    :deep(.el-table) {
-      font-size: 12px;
-
-      thead {
-        color: #2d2f4e;
-      }
-
-      color: #2d2f4e;
-    }
-
-    :deep(.el-pagination) {
-      --el-pagination-font-size: 13px;
-      display: flex;
-      color: rgb(45, 47, 78);
-      padding: 0px;
-      white-space-collapse: collapse;
-      text-wrap: nowrap;
-      .el-pagination__sizes {
-        text-align: left;
-        flex: 1 1 0%;
-        .el-input__wrapper {
-          box-shadow: none;
-          border: 1px solid #e5e5ed;
-          height: 28px;
-          .el-input__inner {
-            height: 28px;
-          }
         }
       }
     }
