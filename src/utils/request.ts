@@ -1,11 +1,11 @@
 import axios from "axios"
-import router from '@/router'
+// import router from '@/router'
 import { ElMessage, ElLoading } from 'element-plus'
 
 // loading函数
 // 记录请求次数
 let needLoadingRequestCount = 0
-let loading
+let loading:any
 function startLoading() {
   loading = ElLoading.service({
     lock: true,

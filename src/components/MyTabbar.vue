@@ -19,9 +19,9 @@ const handleClick = (key: string) => {
 <template>
   <div class="Tab">
     <div class="tab-item"
-         :class="{ active: item.key === activeKey }"
          v-for="item of list"
          :key='item.key'
+         :class="{ active: item.key === activeKey }"
          @click="handleClick(item.key)">
       {{ item.text }}
     </div>

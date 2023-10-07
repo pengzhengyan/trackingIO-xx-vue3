@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, defineEmits } from "vue"
+import { ref } from "vue"
 import moment from 'moment'
 
 /** 向父组件传日期 */
-const emit = defineEmits(['sendDateranger'])
+const emit = defineEmits(['sendDaterange'])
 
 /**
  * data picker
  */
 
-// datapicker内日期值
+// datepicker内日期值
 const today = new Date(moment().format('YYYY/MM/DD'))
-const yesterday = new Date(moment().subtract(1, 'day').format('YYYY/MM/DD'))
-const datarange = ref([today, today])
+const yesterday = new Date(today.getTime() - 3600 * 1000 * 24)
+const pickedRange = ref<any>([today, today])
 
 /**
  * 快捷日期按钮
@@ -49,9 +49,9 @@ const quickDateBtnHandle = (key: string) => {
 
   // 如果是昨天
   if (dateItemActiveKey.value === '1') {
-    datarange.value = [yesterday, yesterday]
+    pickedRange.value = [yesterday, yesterday]
     // 向父组件更新日期
-    emit('sendDateranger', datarange.value)
+    emit('sendDaterange', pickedRange.value)
     return
   }
   let ranger = 0
@@ -66,16 +66,17 @@ const quickDateBtnHandle = (key: string) => {
       ranger = 29
       break;
 
-    default: datarange.value = [new Date(), new Date()]
+    default: pickedRange.value = [new Date(), new Date()]
       break;
   }
-  const start = new Date(Number(today) - ranger * 24 * 3600 * 1000)
-  datarange.value = [start, today]
+  const start = new Date(today.getTime() - ranger * 24 * 3600 * 1000)
+  const end = new Date(today.getTime() + 24 * 3600 * 1000)
+  pickedRange.value = [start, end]
   // 向父组件更新日期
-  emit('sendDateranger', datarange.value)
+  emit('sendDaterange', pickedRange.value)
 }
 const elDatePickerHandle = () => {
-  emit('sendDateranger', datarange.value)
+  emit('sendDaterange', pickedRange.value)
 }
 
 </script>
@@ -93,11 +94,8 @@ const elDatePickerHandle = () => {
     </div>
     <div class="right">
       <el-date-picker type="daterange"
-                      v-model='datarange'
-                      start-placeholder="Start Date"
-                      end-placeholder="End Date"
-                      class="date-picker" 
-                      @change="elDatePickerHandle"/>
+                      v-model='pickedRange'
+                      @change="elDatePickerHandle" />
     </div>
   </div>
 </template>

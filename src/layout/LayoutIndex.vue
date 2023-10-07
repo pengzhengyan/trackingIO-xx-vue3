@@ -4,10 +4,10 @@ import { useRouter, useRoute } from 'vue-router'
 import { PageLayout } from '@/types/config'
 
 type MenuItem = {
-  text: string;
-  iconName?: string;
-  routeName?: string;
-  children?: MenuItem[];
+  text: string
+  iconName?: string
+  routeName?: string
+  children?: MenuItem[]
 }
 
 let config = useConfig()
@@ -81,7 +81,7 @@ let sidebarMenu = $ref<MenuItem[]>([
         text: 'ASA活动详情',
         routeName: 'monitor-asacampaigninfo',
       },
-    ]
+    ],
   },
   {
     text: '行为分析',
@@ -98,8 +98,8 @@ let sidebarMenu = $ref<MenuItem[]>([
       {
         text: '终端属性',
         routeName: 'behavioranalysis-terminalproperties',
-      }
-    ]
+      },
+    ],
   },
   {
     text: '用户生命周期',
@@ -116,8 +116,8 @@ let sidebarMenu = $ref<MenuItem[]>([
       {
         text: '回流分析',
         routeName: 'userlifecycle-backanalysis',
-      }
-    ]
+      },
+    ],
   },
   {
     text: '推广活动',
@@ -130,8 +130,8 @@ let sidebarMenu = $ref<MenuItem[]>([
       {
         text: '推广活动组管理',
         routeName: 'manage-campgroup',
-      }
-    ]
+      },
+    ],
   },
   {
     text: '数据服务',
@@ -148,8 +148,8 @@ let sidebarMenu = $ref<MenuItem[]>([
       {
         text: '日志查询',
         routeName: 'dataservice-logquery',
-      }
-    ]
+      },
+    ],
   },
   {
     text: '配置',
@@ -163,20 +163,20 @@ let sidebarMenu = $ref<MenuItem[]>([
         text: '应用配置',
         routeName: 'config-systemparam',
       },
-    ]
+    ],
   },
   {
     text: '流量变现',
     iconName: 'icon-cashflow',
     routeName: 'trafficmonetization-trafficmonetizationper',
-    children: []
+    children: [],
   },
   {
     text: '防作弊卫士',
     iconName: 'icon-anti-cheating',
     routeName: 'anticheatposition-anticheatpositioner',
-    children: []
-  }
+    children: [],
+  },
 ])
 
 /**
@@ -192,6 +192,10 @@ function handleMenuSelect(index: string) {
 
   router.push({ name: item.routeName })
 }
+
+// avatar
+const avatarSrc =
+  'https://cimg.fx361.com/images/2019/05/15/qkimageswsblwsbl201903wsbl20190326-1-l.jpg'
 </script>
 
 <template>
@@ -202,14 +206,14 @@ function handleMenuSelect(index: string) {
     <div class="Layout">
       <div class="sidebar-container">
         <div class="logo">
-            <img src="@/assets/images/public/logo-copy.png" />
+          <img src="@/assets/images/public/logo-copy.png" />
         </div>
         <el-menu class="menu"
                  :default-active="menuDefaultActiveIndex"
                  active-text-color="#6b7aff"
                  @select="handleMenuSelect">
           <template v-for="(item, index) of sidebarMenu"
-                    :key='index'>
+                    :key="index">
             <el-sub-menu v-if="item.children!.length"
                          :index="String(index)">
               <template #title>
@@ -218,7 +222,7 @@ function handleMenuSelect(index: string) {
                 <span>{{ item.text }}</span>
               </template>
               <el-menu-item v-for="(subItem, subIndex) of item.children"
-                            :key='subIndex'
+                            :key="subIndex"
                             :index="`${String(index)}-${String(subIndex)}`">
                 {{ subItem.text }}
               </el-menu-item>
@@ -238,11 +242,12 @@ function handleMenuSelect(index: string) {
             <div class="application-box"></div>
           </div>
           <div class="right">
-            <div class="user-avata"></div>
+            <el-avatar :size="50"
+                       :src="avatarSrc" />
           </div>
         </div>
         <div class="main-content"
-             style="margin: 10px 0;">
+             style="margin: 10px 0">
           <router-view />
         </div>
       </div>

@@ -7,7 +7,10 @@
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    // "moduleResolution": "bundler", //原来是这个
+    "moduleResolution": "Node", // 解决从vue引入ref报错
+    // 解决引入moment报错： This module is declared with 'export =', and can only be used with a default import when using the 'allowSyntheticDefaultImports' flag.
+    "allowSyntheticDefaultImports": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -27,6 +30,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","node_modules/element-plus/global.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "node_modules/element-plus/global.d.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
