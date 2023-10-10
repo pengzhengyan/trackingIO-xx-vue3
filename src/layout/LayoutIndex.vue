@@ -236,7 +236,9 @@ const selectChange = (value: number) => {
         </div>
         <div class="main-content"
              style="margin: 10px 0">
-          <router-view />
+          <el-scrollbar height="100%">
+            <router-view />
+          </el-scrollbar>
         </div>
       </div>
     </div>
@@ -290,7 +292,10 @@ const selectChange = (value: number) => {
         </div>
         <div class="main-content"
              style="margin: 10px 0">
-          <router-view />
+          <el-scrollbar height="100%">
+            <router-view />
+          </el-scrollbar>
+
         </div>
       </div>
     </div>
@@ -372,7 +377,7 @@ const selectChange = (value: number) => {
     flex-grow: 1;
     padding: 0 25px;
     background-color: #f6f6f6;
-    overflow: auto;
+    // overflow: auto;
 
     .header {
       display: flex;
@@ -388,6 +393,14 @@ const selectChange = (value: number) => {
           background-color: #fff;
         }
       }
+    }
+
+    .main-content {
+      width: 100%;
+      position: relative;
+      overflow: auto;
+      height: calc(100vh - 72px);
+      margin-top: 72px;
     }
   }
 }
