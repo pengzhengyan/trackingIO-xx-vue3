@@ -243,7 +243,8 @@ onBeforeMount(() => {
                      :fixedMetric="{ item: '排重激活设备数', key: 'actcount' }"
                      v-model:checkedMetrics="checkedMetrics" />
 
-      <el-select clearable
+      <el-select class="my-shadow-select"
+                 clearable
                  multiple
                  collapse-tags
                  collapse-tags-tooltip

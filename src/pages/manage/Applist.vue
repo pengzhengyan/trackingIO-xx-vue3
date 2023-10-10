@@ -63,7 +63,7 @@ const handleAppcardClick = (id: number) => {
             <span class="caretbox">
             </span>
           </div>
-          <el-select class="mr-16"
+          <el-select class=" my-shadow-select mr-16"
                      clearable
                      multiple
                      collapse-tags
@@ -87,7 +87,8 @@ const handleAppcardClick = (id: number) => {
             </el-option>
           </el-select>
           <div class="searchbox broadInput">
-            <el-input placeholder="搜索应用名称或APPKEY">
+            <el-input class="my-shadow-input"
+                      placeholder="搜索应用名称或APPKEY">
               <template #suffix>
                 <SvgIcon name="search"></SvgIcon>
               </template>

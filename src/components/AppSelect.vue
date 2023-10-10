@@ -15,7 +15,8 @@ const handleChange = () => {
 <template>
   <div class="applistbox">
     <div class="left">
-      <el-select v-model="value"
+      <el-select class="my-shadow-select"
+                 v-model="value"
                  filterable
                  placeholder="请选择应用"
                  @change="handleChange">

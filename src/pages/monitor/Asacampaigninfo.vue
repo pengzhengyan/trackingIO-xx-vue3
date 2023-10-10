@@ -242,7 +242,8 @@ onBeforeMount(() => {
         批量上传
       </el-button>
 
-      <el-select clearable
+      <el-select class="my-shadow-select"
+                 clearable
                  multiple
                  collapse-tags
                  collapse-tags-tooltip

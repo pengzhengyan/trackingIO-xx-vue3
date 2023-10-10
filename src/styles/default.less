@@ -13,10 +13,25 @@ img {
   vertical-align: middle;
 }
 
-.el-select {
+.my-shadow-select {
   .el-input__wrapper,
   &:hover:not(.el-select--disabled) .el-input__wrapper {
     box-shadow: 0 4px 16px #e5e5ed;
+    border-radius: 8px;
+  }
+
+  .el-input {
+    --el-font-size-base: 12px;
+  }
+
+  .el-input__inner {
+    --el-input-inner-height: 40px;
+  }
+}
+
+.my-select {
+  .el-input__wrapper,
+  &:hover:not(.el-select--disabled) .el-input__wrapper {
     border-radius: 8px;
   }
 
@@ -37,18 +52,63 @@ img {
   font-size: 12px;
 }
 
-.broadInput {
+.my-input {
+  .el-input__wrapper,
+  &:hover:not(.el-select--disabled) .el-input__wrapper {
+    border-radius: 8px;
+  }
+    font-size: 12px;
+    .el-input__wrapper {
+      .el-input__inner {
+        --el-input-inner-height: 40px;
+      }
+    }
+}
+.my-shadow-input {
   .el-input__wrapper,
   &:hover:not(.el-select--disabled) .el-input__wrapper {
     box-shadow: 0 4px 16px #e5e5ed;
     border-radius: 8px;
   }
-
-  .el-input {
     --el-font-size-base: 12px;
-  }
-
   .el-input__inner {
     --el-input-inner-height: 40px;
   }
+}
+
+.my-radio-group {
+  .el-radio__label {
+    font-size: 12px;
+  }
+}
+
+.my-input-number {
+  .el-input-number__decrease,
+  .el-input-number__increase {
+    height: auto;
+    line-height: 19px;
+    width: 20px;
+  }
+  .el-input-number__increase {
+    border-radius: 0 8px 0 0!important;
+  }
+  .el-input-number__decrease {
+    border-radius: 0 0 8px 0!important;
+  }
+  .el-input {
+    font-size: 12px;
+    border-radius: 8px;
+    .el-input__wrapper {
+      border-radius: 8px;
+
+    }
+  }
+}
+
+.main-card {
+  background: #fff;
+  -webkit-box-shadow: 0 8px 16px #e5e6ed;
+  box-shadow: 0 8px 16px #e5e6ed;
+  border-radius: 8px;
+  padding: 20px;
 }
