@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useConfig } from '@/pinia/config'
+import { useUserInfo } from '@/pinia/userInfo'
 import { useRouter, useRoute } from 'vue-router'
 import { PageLayout } from '@/types/config'
+import AppSelect from '@/components/AppSelect.vue'
 
 type MenuItem = {
   text: string
@@ -11,6 +14,8 @@ type MenuItem = {
 }
 
 let config = useConfig()
+const userinfoStroe = useUserInfo()
+
 let router = useRouter()
 let route = useRoute()
 
@@ -196,11 +201,46 @@ function handleMenuSelect(index: string) {
 // avatar
 const avatarSrc =
   'https://cimg.fx361.com/images/2019/05/15/qkimageswsblwsbl201903wsbl20190326-1-l.jpg'
+
+/**
+ * 处理选择应用组件的操作
+ */
+const applist = computed(() => userinfoStroe.applist)
+const appid = computed(() => userinfoStroe.appidSelected)
+const selectChange = (value: number) => {
+  userinfoStroe.reselectAppid(value)
+  // 注意：选择的appid值变更后，会回到dashboard
+  router.push({ name: 'monitor-dashboard' })
+}
+
 </script>
 
 <template>
   <template v-if="pageLayout === PageLayout.FullScreen">
     <router-view />
+  </template>
+  <template v-if="pageLayout === PageLayout.NotSidebar">
+    <div class="Layout">
+      <div class="main-container">
+        <div class="header">
+          <div class="left">
+            <div class="logo"
+                 style="width: 128px;">
+              <img src="@/assets/images/public/logo-copy.png" />
+            </div>
+          </div>
+          <div class="right">
+            <el-avatar :size="50"
+                       :src="avatarSrc" />
+          </div>
+        </div>
+        <div class="main-content"
+             style="margin: 10px 0">
+          <router-view />
+        </div>
+      </div>
+    </div>
+
   </template>
   <template v-if="pageLayout === PageLayout.HasSidebar">
     <div class="Layout">
@@ -239,7 +279,9 @@ const avatarSrc =
       <div class="main-container">
         <div class="header">
           <div class="left">
-            <div class="application-box"></div>
+            <AppSelect :options="applist"
+                       :appid='appid'
+                       @selectChange="selectChange"></AppSelect>
           </div>
           <div class="right">
             <el-avatar :size="50"
@@ -337,8 +379,6 @@ const avatarSrc =
       align-items: center;
       justify-content: space-between;
       padding: 12px 0;
-
-      .left {}
 
       .right {
         .user-avata {

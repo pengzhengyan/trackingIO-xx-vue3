@@ -85,7 +85,7 @@ const initMetricsPage = () => {
 const searchContent = ref('')
 
 // 因为服务端未存放icon，所以准备iconList，在menu初始始化时调用
-const iconList: string[] = ['Grid', 'Switch', 'Coin', 'Guide', 'TrendCharts']
+const iconList: string[] = ['topology', 'switch', 'coin', 'retention', 'trendcharts']
 /**
  * 指标的menu的内容
  * children放着实际指标内容
@@ -350,10 +350,10 @@ const arrayDelElement = (arr: string[], item: string, fixedItem?: string) => {
                           :key="item.index"
                           :index="item.index">
               <div class="bg">
-                <el-icon>
-                  <component :is="item.iconName"></component>
-                </el-icon>
-                <el-icon :icon="item.iconName"></el-icon>
+                <SvgIcon :name="item.iconName"
+                         color="#6b7aff"
+                         width="17px"
+                         height="17px"></SvgIcon>
                 <span>{{ item.text }}</span>
               </div>
             </el-menu-item>
@@ -525,6 +525,12 @@ const arrayDelElement = (arr: string[], item: string, fixedItem?: string) => {
               line-height: 34px;
               width: 100%;
               padding-left: 32px;
+              display: flex;
+              align-items: center;
+
+              span {
+                margin-left: 8px;
+              }
             }
 
             &.is-active {

@@ -15,7 +15,12 @@ let routes: RouteRecordRaw[] = [
     name: 'Login',
     component: () => import('@/pages/login/Login.vue')
   },
-
+  /** 选择应用页*/
+  {
+    path: '/applist',
+    name: 'applist',
+    component: () => import('@/pages/manage/Applist.vue')
+  },
   /** 广告监测 */
   {
     path: '/monitor/dashboard',
@@ -156,7 +161,11 @@ let router = createRouter({
 router.afterEach((to) => {
   let { changePageLayout } = useConfig()
 
-  if (to.name === 'Login') changePageLayout(PageLayout.FullScreen)
+  if (to.name === 'Login') {
+    changePageLayout(PageLayout.FullScreen)
+  } else if (to.name === 'applist') {
+    changePageLayout(PageLayout.NotSidebar)
+  }
   else changePageLayout(PageLayout.HasSidebar)
 })
 

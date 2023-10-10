@@ -1,15 +1,11 @@
 <script setup lang="ts">
-// import { userLogIn } from '@/request/api/user'
+import { useUserInfo } from '@/pinia/userInfo';
 import { ElMessage } from 'element-plus'
 import { LOGIN_INFO } from '@/keys/storage'
 import { useRouter } from 'vue-router'
-import { useConfig } from '@/pinia/config'
-import { useMetrics } from '@/pinia/metrics'
-import { PageLayout } from '@/types/config'
-const router = useRouter()
-let { changePageLayout } = useConfig()
-const { initAsaCheckedMetrics } = useMetrics()
 
+const router = useRouter()
+const userInfoStore = useUserInfo()
 /**
  * 表单信息
  * @prop email 邮箱地址
@@ -42,20 +38,18 @@ async function handleLogIn() {
 
     /** 模拟接口响应 */
     await new Promise(resolve => setTimeout(resolve, 1000))
-    await initAsaCheckedMetrics()
+    /** 获取用户数据 */
+    await userInfoStore.initUserinfo()
+    /** 存token */
     let data = {
       token: 'fa4a3ee4-07bb-5457-e7db-128b81824c34',
       username: 'ET',
       email: '1152514753@qq.com'
     }
-
     /** end */
-
-
     localStorage.setItem(LOGIN_INFO, JSON.stringify(data))
-
-    router.push({ name: 'monitor-dashboard' })
-    changePageLayout(PageLayout.HasSidebar)
+    /** 跳转到应用选择界面 */
+    router.push({ name: 'applist' })
   } catch (error) {
 
   } finally {
@@ -79,9 +73,9 @@ async function handleLogIn() {
       </div>
     </div>
     <div class="right-content">
-              <div class="logo">
-                COPING<span style='color: hotpink;'>I</span><span style='color: mediumpurple;'>O</span>
-              </div>
+      <div class="logo">
+        COPING<span style='color: hotpink;'>I</span><span style='color: mediumpurple;'>O</span>
+      </div>
       <div class="enter-container">
         <div class="title">Sign In</div>
         <div class="description">Welcome back! Please enter your details</div>
@@ -236,3 +230,4 @@ async function handleLogIn() {
   }
 }
 </style>
+@/pinia/userInfo

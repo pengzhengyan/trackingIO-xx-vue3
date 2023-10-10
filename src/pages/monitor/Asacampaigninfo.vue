@@ -8,7 +8,11 @@ import { getAsaData, getAsaList, getAsaCheck, getAsaMetrics } from '@/api/index.
 import { ref, computed, onBeforeMount } from 'vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
+import { useUserInfo } from "@/pinia/userInfo"
 
+// 从store获取选中的应用
+const userinfoStroe = useUserInfo()
+const reqConfig = computed(() => userinfoStroe.reqConfig)
 /**
  * type
  */
@@ -90,7 +94,8 @@ const receiveDaterange = (date: Date[]) => {
 let asaMectrics = ref<metricsItem[]>([])
 let asaTextKey = ref<textKeyItem[]>([])
 const initAsaMetrics = async () => {
-  const { data } = await getAsaMetrics()
+  console.log(reqConfig.value)
+  const { data } = await getAsaMetrics(reqConfig.value)
   data.forEach((item: metricsItem) => {
     item.children.forEach((sub: metricsChildItem) => {
       // 将子menu的text - key 存到 值键对数组，后面要用到
@@ -121,7 +126,7 @@ const setFilter = async () => {
     type: 'asa'
   }
   const json = JSON.stringify(res)
-  const { data } = await getAsaList(json)
+  const { data } = await getAsaList(json, reqConfig.value)
   if (data.code) return ElMessage.error('group请求参数错误.')
   filterGroups.value.forEach((item) => {
     item.options = data[item.label].map((option: string) => Number(option))
@@ -184,7 +189,7 @@ const requestAsaData = async () => {
     type: 'asa',
   }
   const json = JSON.stringify(res)
-  const { data } = await getAsaData(json)
+  const { data } = await getAsaData(json, reqConfig.value)
   if (data.code) return ElMessage.error('asa请求参数错误.')
   const lastItem = data.pop()
   data.unshift(lastItem)
@@ -230,7 +235,7 @@ onBeforeMount(() => {
                      :fixedMetric="{ item: '转化总数', key: 'actcount' }"
                      v-model:checkedMetrics="checkedMetrics" />
       <el-button type="primary"
-                 style="height: 40px; margin-left: 0; border-radius: 8px; box-shadow: 0 4px 16px #e5e5ed">
+                 class="broadBtn">
         <el-icon>
           <Upload />
         </el-icon>

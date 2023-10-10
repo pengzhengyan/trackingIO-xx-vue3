@@ -9,7 +9,11 @@ import { getCampData, getCampList, getCampCheck, getCampMetrics } from '@/api/in
 import { ref, computed, onBeforeMount } from 'vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
+import { useUserInfo } from "@/pinia/userInfo"
 
+// 从store获取选中的应用
+const userinfoStroe = useUserInfo()
+const reqConfig = computed(() => userinfoStroe.reqConfig)
 /**
  * type
  */
@@ -91,7 +95,7 @@ const receiveDaterange = (date: Date[]) => {
 let campMectrics = ref<metricsItem[]>([])
 let asaTextKey = ref<textKeyItem[]>([])
 const initCampMetrics = async () => {
-  const { data } = await getCampMetrics()
+  const { data } = await getCampMetrics(reqConfig.value)
   data.forEach((item: metricsItem) => {
     item.children.forEach((sub: metricsChildItem) => {
       // 将子menu的text - key 存到 值键对数组，后面要用到
@@ -109,8 +113,8 @@ let filterGroups = ref([
   // { placeholder: '请选择匹配类型',label:'', value:[], options: [] },
   { placeholder: '请选择acid', label: 'acid', value: [], options: [] },
   { placeholder: '请选择agid', label: 'agid', value: [], options: [] },
-  { placeholder: '请选择aid', label: 'aid', value: [], options: [] },
-  { placeholder: '请选择channelid', label: 'channelid', value: [], options: [] },
+  { placeholder: '请选择活动', label: 'aid', value: [], options: [] },
+  { placeholder: '请选择渠道', label: 'channelid', value: [], options: [] },
   { placeholder: '请选择ggzid', label: 'ggzid', value: [], options: [] },
   { placeholder: '请选择maid', label: 'maid', value: [], options: [] },
   { placeholder: '请选择pid', label: 'pid', value: [], options: [] },
@@ -124,7 +128,7 @@ const setFilter = async () => {
     type: 'ml'
   }
   const json = JSON.stringify(res)
-  const { data } = await getCampList(json)
+  const { data } = await getCampList(json, reqConfig.value)
   if (data.code) return ElMessage.error('group请求参数错误.')
   filterGroups.value.forEach((item) => {
     item.options = data[item.label]
@@ -189,7 +193,7 @@ const requestAsaData = async () => {
     type: 'ml',
   }
   const json = JSON.stringify(res)
-  const { data } = await getCampData(json)
+  const { data } = await getCampData(json, reqConfig.value)
   if (data.code) return ElMessage.error('asa请求参数错误.')
   const lastItem = data.pop()
   data.unshift(lastItem)

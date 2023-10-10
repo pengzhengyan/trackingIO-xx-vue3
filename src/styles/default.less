@@ -28,3 +28,27 @@ img {
     --el-input-inner-height: 40px;
   }
 }
+
+.broadBtn {
+  height: 40px; 
+  margin-left: 0; 
+  border-radius: 8px; 
+  box-shadow: 0 4px 16px #e5e5ed;
+  font-size: 12px;
+}
+
+.broadInput {
+  .el-input__wrapper,
+  &:hover:not(.el-select--disabled) .el-input__wrapper {
+    box-shadow: 0 4px 16px #e5e5ed;
+    border-radius: 8px;
+  }
+
+  .el-input {
+    --el-font-size-base: 12px;
+  }
+
+  .el-input__inner {
+    --el-input-inner-height: 40px;
+  }
+}
