@@ -29,8 +29,8 @@ const handleCurrentChange = (val: number) => {
               max-height="450"
               :id="props.tableInfo.id"
               :data="props.tableData
-                  ? props.tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                  : []
+                ? props.tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                : []
                 ">
       <el-table-column :prop="tabActiveBar?.label"
                        :label="tabActiveBar?.text"

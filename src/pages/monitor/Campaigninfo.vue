@@ -5,12 +5,15 @@ import MetricsConfig from '@/components/MetricsConfig.vue'
 import MyTable from '@/components/MyTable.vue'
 import FilesSaver from '@/components/FilesSaver.vue'
 import FilterTemplate from '@/components/FilterTemplate.vue'
-import { getCampData, getCampList, getCampCheck, getCampMetrics } from '@/api/index.ts'
+import { getCampData, getCampList, login, getCampMetrics } from '@/api/index.ts'
 import { ref, computed, onBeforeMount } from 'vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import { useUserInfo } from "@/pinia/userInfo"
+import { LOGIN_INFO } from '@/keys/storage'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 // 从store获取选中的应用
 const userinfoStroe = useUserInfo()
 const reqConfig = computed(() => userinfoStroe.reqConfig)
@@ -201,13 +204,21 @@ const requestAsaData = async () => {
 }
 
 onBeforeMount(() => {
+  // 查看缓存(存了 token username password)
+  const tokenJson = localStorage.getItem(LOGIN_INFO)
+  if (!tokenJson) {
+    ElMessage.error('登录失效，请重新登录')
+    router.push({ name: 'Login' })
+    return
+  }
+  const token = JSON.parse(tokenJson)
   // 请求数据指标数据
   initCampMetrics()
   /** 请求select框组的数据*/
   setFilter()
   /** init选定的指标*/
-  getCampCheck().then((res: any) => {
-    checkedMetrics.value = res.data.result.check
+  login(token.username, token.password).then((res: any) => {
+    checkedMetrics.value = res.data.result.mlcheck
     // 之后再请求表格数据
     requestAsaData()
   })
@@ -243,8 +254,7 @@ onBeforeMount(() => {
                      :fixedMetric="{ item: '排重激活设备数', key: 'actcount' }"
                      v-model:checkedMetrics="checkedMetrics" />
 
-      <el-select class="my-shadow-select"
-                 clearable
+      <el-select clearable
                  multiple
                  collapse-tags
                  collapse-tags-tooltip

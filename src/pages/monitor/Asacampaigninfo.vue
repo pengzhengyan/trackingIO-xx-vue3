@@ -4,12 +4,15 @@ import DateBar from '@/components/DateBar.vue'
 import MetricsConfig from '@/components/MetricsConfig.vue'
 import MyTable from '@/components/MyTable.vue'
 import FilesSaver from '@/components/FilesSaver.vue'
-import { getAsaData, getAsaList, getAsaCheck, getAsaMetrics } from '@/api/index.js'
+import { getAsaData, getAsaList, login, getAsaMetrics } from '@/api/index.js'
 import { ref, computed, onBeforeMount } from 'vue'
 import { ElMessage } from 'element-plus'
 import moment from 'moment'
 import { useUserInfo } from "@/pinia/userInfo"
+import { LOGIN_INFO } from '@/keys/storage'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 // 从store获取选中的应用
 const userinfoStroe = useUserInfo()
 const reqConfig = computed(() => userinfoStroe.reqConfig)
@@ -94,7 +97,6 @@ const receiveDaterange = (date: Date[]) => {
 let asaMectrics = ref<metricsItem[]>([])
 let asaTextKey = ref<textKeyItem[]>([])
 const initAsaMetrics = async () => {
-  console.log(reqConfig.value)
   const { data } = await getAsaMetrics(reqConfig.value)
   data.forEach((item: metricsItem) => {
     item.children.forEach((sub: metricsChildItem) => {
@@ -197,12 +199,20 @@ const requestAsaData = async () => {
 }
 
 onBeforeMount(() => {
+  // 查看缓存(存了 token username password)
+  const tokenJson = localStorage.getItem(LOGIN_INFO)
+  if (!tokenJson) {
+    ElMessage.error('登录失效，请重新登录')
+    router.push({ name: 'Login' })
+    return
+  }
+  const token = JSON.parse(tokenJson)
   // 请求数据指标数据
   initAsaMetrics()
   /** 请求select框组的数据*/
   setFilter()
   /** init选定的指标*/
-  getAsaCheck().then((res: any) => {
+  login(token.username, token.password).then((res: any) => {
     checkedMetrics.value = res.data.result.check
     // 之后再请求表格数据
     requestAsaData()
@@ -242,8 +252,7 @@ onBeforeMount(() => {
         批量上传
       </el-button>
 
-      <el-select class="my-shadow-select"
-                 clearable
+      <el-select clearable
                  multiple
                  collapse-tags
                  collapse-tags-tooltip

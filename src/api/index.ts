@@ -5,9 +5,8 @@ type config = {
     gameid:number
   }
 }
-
-// 获取asa选定的指标接口
-const getAsaCheck = () => http.post("?api=/auth/login&password=89665d69947595ca7faf4581a9717fdc&type=asa&dbserve=xxdbserver&username=gaofei")
+// 登录
+const login = (username:string, password:string) => http.post(`?api=/auth/login&username=${username}&password=${password}`)
 
 // 获取asa指标接口
 const getAsaMetrics = (config:config) => http.get('?api=/data/getindex&type=asa', config)
@@ -17,9 +16,6 @@ const getAsaData = (options:string, config:config) => http.post('?api=/data/geta
 
 // 获取asa下拉列表
 const getAsaList = (options:string, config:config) => http.post('?api=/data/getasalist', options, config)
-
-// 获取asa选定的指标接口
-const getCampCheck = () => http.post("?api=/auth/login&password=89665d69947595ca7faf4581a9717fdc&type=ml&dbserve=xxdbserver&username=gaofei")
 
 // 获取买量指标接口
 const getCampMetrics = (config:config) => http.get('?api=/data/getindex&type=ml', config)
@@ -32,11 +28,10 @@ const getCampList = (options:string, config:config) => http.post('?api=/data/get
 
 // 对外暴露接口
 export{
-  getAsaCheck,
+  login,
   getAsaMetrics,
   getAsaData,
   getAsaList,
-  getCampCheck,
   getCampMetrics,
   getCampList,
   getCampData

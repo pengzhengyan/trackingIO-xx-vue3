@@ -3,6 +3,7 @@ import { useUserInfo } from '@/pinia/userInfo';
 import { ElMessage } from 'element-plus'
 import { LOGIN_INFO } from '@/keys/storage'
 import { useRouter } from 'vue-router'
+import { login } from '@/api'
 
 const router = useRouter()
 const userInfoStore = useUserInfo()
@@ -28,28 +29,36 @@ async function handleLogIn() {
   let { email, password } = formState
 
   if (!email || !password) return ElMessage({
-    message: 'Please enter your email and password',
+    message: '帐号密码不能为空',
     type: 'error'
   })
 
   try {
     buttonLoading = true
-    // let data  = await userLogIn({ ...formState })
-
-    /** 模拟接口响应 */
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    /** 获取用户数据 */
-    await userInfoStore.initUserinfo()
-    /** 存token */
-    let data = {
-      token: 'fa4a3ee4-07bb-5457-e7db-128b81824c34',
-      username: 'ET',
-      email: '1152514753@qq.com'
+    // 验证登录
+    const { data } = await login(email, password)
+    // const received = await login(config)
+    if (data.code === 200) {
+      /** 模拟接口响应 */
+      // await new Promise(resolve => setTimeout(resolve, 1000))
+      /** 获取用户数据 */
+      userInfoStore.initUserinfo(data.result)
+      /** 存token */
+      let loginData = {
+        token: data.result.token,
+        username: email,
+        password,
+      }
+      localStorage.setItem(LOGIN_INFO, JSON.stringify(loginData))
+      /** 跳转到应用选择界面 */
+      router.push({ name: 'applist' })
+    } else {
+      localStorage.removeItem(LOGIN_INFO)
+      ElMessage({
+        message: data.message,
+        type: 'error'
+      })
     }
-    /** end */
-    localStorage.setItem(LOGIN_INFO, JSON.stringify(data))
-    /** 跳转到应用选择界面 */
-    router.push({ name: 'applist' })
   } catch (error) {
 
   } finally {
