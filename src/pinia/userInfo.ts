@@ -12,18 +12,18 @@ export const useUserInfo = defineStore('userInfo', {
     mlCheckedMetrics: ['actcount'],
 
     // 用户所拥有的应用信息
-    applist:[{gameid:0, name:''}],
+    applist:[''],
 
     /**
      * 用户选择的appid
      */
-    appidSelected: 100079100910
+    appSelected: 'appstore_pfdmw2_101'
   }),
   getters: {
     reqConfig: (state) => {
       return {
         headers: {
-          gameid : state.appidSelected
+          pub : state.appSelected
         }
       }
     }
@@ -34,13 +34,13 @@ export const useUserInfo = defineStore('userInfo', {
       console.log(result)
       if(result.asacheck) this.asaCheckedMetrics = result.asacheck
       if(result.mlcheck) this.mlCheckedMetrics = result.mlcheck
-      this.applist = result.gameidlist
+      this.applist = result.publist
       this.username = result.username
       this.loginId = result.loginId
     },
     // 改变appid
-    reselectAppid (id:number) {
-      this.appidSelected = id
+    reselectApp (pub:string) {
+      this.appSelected = pub
     },
   },
   persist: true

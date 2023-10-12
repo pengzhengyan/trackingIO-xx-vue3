@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import BacktoappBtn from '@/components/BacktoappBtn.vue';
 
 const emits = defineEmits(['selectChange'])
-const props = defineProps(['options', 'appid'])
-const value = ref(props.appid)
+const props = defineProps(['options', 'value'])
+const value = ref(props.value)
 
 const handleChange = () => {
   emits('selectChange', value.value)
@@ -23,9 +23,9 @@ const handleChange = () => {
           <SvgIcon name="iphone"></SvgIcon>
         </template>
         <el-option v-for="item in options"
-                   :key="item.gameid"
-                   :label="item.name"
-                   :value="item.gameid" />
+                   :key="item"
+                   :label="item"
+                   :value="item" />
       </el-select>
     </div>
     <BacktoappBtn></BacktoappBtn>

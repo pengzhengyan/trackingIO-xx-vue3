@@ -206,9 +206,9 @@ const avatarSrc =
  * 处理选择应用组件的操作
  */
 const applist = computed(() => userinfoStroe.applist)
-const appid = computed(() => userinfoStroe.appidSelected)
-const selectChange = (value: number) => {
-  userinfoStroe.reselectAppid(value)
+const appid = computed(() => userinfoStroe.appSelected)
+const selectChange = (value: string) => {
+  userinfoStroe.reselectApp(value)
   // 注意：选择的appid值变更后，会回到dashboard
   router.push({ name: 'monitor-dashboard' })
 }
@@ -282,7 +282,7 @@ const selectChange = (value: number) => {
         <div class="header">
           <div class="left">
             <AppSelect :options="applist"
-                       :appid='appid'
+                       :value='appid'
                        @selectChange="selectChange"></AppSelect>
           </div>
           <div class="right">

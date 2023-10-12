@@ -31,8 +31,8 @@ const selectChangeHandle = () => {
   // ElMessage.error('功能暂未开放')
 }
 
-const handleAppcardClick = (id: number) => {
-  userinfoStroe.reselectAppid(id)
+const handleAppcardClick = (pub: string) => {
+  userinfoStroe.reselectApp(pub)
   router.push({ name: 'monitor-dashboard' })
 
 }
@@ -104,9 +104,9 @@ const handleAppcardClick = (id: number) => {
             <el-col :span="8"
                     style="padding-right: 6px;"
                     v-for="app in applist"
-                    :key="app.gameid">
+                    :key="app">
               <el-card class="app-card"
-                       @click="handleAppcardClick(app.gameid)">
+                       @click="handleAppcardClick(app)">
                 <div class="app-info">
                   <div class="app-icon">
                     <SvgIcon name="ios"
@@ -114,7 +114,7 @@ const handleAppcardClick = (id: number) => {
                              height="50px"></SvgIcon>
                   </div>
                   <div class="app-info-rg">
-                    <p class="app-title ">{{ app.name }}</p>
+                    <p class="app-title ">{{ app }}</p>
                     <p class="app-sub-title">调试完成时间 2023-8-30 10:30:14</p>
                   </div>
                 </div>
@@ -175,6 +175,7 @@ const handleAppcardClick = (id: number) => {
       .app-list {
         .app-card {
           cursor: pointer;
+          margin-bottom: 5px;
 
           .app-info {
             display: flex;

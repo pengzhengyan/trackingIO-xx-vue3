@@ -2,7 +2,7 @@ import http from "@/utils/request.js"
 
 type config = {
   headers: {
-    gameid:number
+    pub:string
   }
 }
 // 登录
@@ -26,6 +26,8 @@ const getCampData = (options:string, config:config) => http.post('?api=/data/get
 // 获取买量下拉列表
 const getCampList = (options:string, config:config) => http.post('?api=/data/getasalist', options, config)
 
+// 获取投放的渠道列表
+const getChannalList = () => http.get('?api=/data/getactivitylist')
 // 对外暴露接口
 export{
   login,
@@ -34,5 +36,6 @@ export{
   getAsaList,
   getCampMetrics,
   getCampList,
-  getCampData
+  getCampData,
+  getChannalList
 }
