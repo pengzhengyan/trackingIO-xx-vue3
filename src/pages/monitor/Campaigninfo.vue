@@ -180,7 +180,7 @@ let asaData = ref([
 const checkedMetrics = ref<string[]>([])
 
 // 表格选定指标的键值对
-const propKey = computed(() => {
+const propKey = computed((): any => {
   return checkedMetrics.value.map((key) => asaTextKey.value.find((item) => item.key === key))
 })
 

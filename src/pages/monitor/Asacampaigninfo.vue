@@ -175,7 +175,7 @@ let asaData = ref([
 // 表格选定的指标，通过向服务端请求获取
 const checkedMetrics = ref<string[]>([])
 // 表格选定指标的键值对
-const propKey = computed(() => {
+const propKey = computed((): any => {
   return checkedMetrics.value.map((key) => asaTextKey.value.find((item) => item.key === key))
 })
 
