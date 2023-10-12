@@ -190,6 +190,8 @@ const requestAsaData = async () => {
     username: userinfoStroe.loginId,
     type: 'asa',
   }
+  // 如果指标为空，则设定为一个基础值
+  if (!res.list) res.list = ['actcount']
   const json = JSON.stringify(res)
   const { data } = await getAsaData(json, reqConfig.value)
   if (data.code) return ElMessage.error('asa请求参数错误.')
@@ -197,8 +199,7 @@ const requestAsaData = async () => {
   data.unshift(lastItem)
   asaData.value = data
 }
-
-onBeforeMount(() => {
+const initPage = () => {
   // 查看缓存(存了 token username password)
   const tokenJson = localStorage.getItem(LOGIN_INFO)
   if (!tokenJson) {
@@ -213,10 +214,13 @@ onBeforeMount(() => {
   setFilter()
   /** init选定的指标*/
   login(token.username, token.password).then((res: any) => {
-    checkedMetrics.value = res.data.result.check
+    checkedMetrics.value = res.data.result.asacheck
     // 之后再请求表格数据
     requestAsaData()
   })
+}
+onBeforeMount(() => {
+  initPage()
 })
 </script>
 
@@ -257,6 +261,7 @@ onBeforeMount(() => {
                  collapse-tags
                  collapse-tags-tooltip
                  style="width: 240px"
+                 class="my-shadow-select"
                  v-for="Group in filterGroups"
                  :key="Group.label"
                  v-model="Group.value"

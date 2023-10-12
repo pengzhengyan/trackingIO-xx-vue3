@@ -7,7 +7,6 @@ const props = defineProps(['options', 'appid'])
 const value = ref(props.appid)
 
 const handleChange = () => {
-  console.log(value.value)
   emits('selectChange', value.value)
 }
 </script>

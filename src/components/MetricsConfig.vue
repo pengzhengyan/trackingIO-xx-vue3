@@ -41,6 +41,7 @@ watch(
   () => props.checkedMetrics,
   (val, preVal) => {
     if (val !== preVal) {
+      console.log(val)
       initMetricsPage()
     }
   }
