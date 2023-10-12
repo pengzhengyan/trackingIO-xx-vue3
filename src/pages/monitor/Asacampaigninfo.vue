@@ -187,7 +187,7 @@ const requestAsaData = async () => {
     cdate: datarange.value, // 日期[1694948996, 1695035410]
     screen: chosenGroup.value, //下拉框筛选
     list: checkedMetrics.value, //编辑指标内容
-    username: 'gaofei',
+    username: userinfoStroe.loginId,
     type: 'asa',
   }
   const json = JSON.stringify(res)
