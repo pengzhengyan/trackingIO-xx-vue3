@@ -2,7 +2,45 @@
 import { ref, computed, watch } from 'vue'
 import draggable from 'vuedraggable'
 
-const props = defineProps(['title', 'requestAsaData', 'metrics', 'textKey', 'checkedMetrics', 'fixedMetric'])
+// const props = defineProps(['title', 'requestAsaData', 'metrics', 'textKey', 'checkedMetrics', 'fixedMetric'])
+const props = defineProps({
+  title: {
+    type: String,
+    default: '标题'
+  },
+  requestAsaData: {
+    type: Function,
+    default: () => { }
+  },
+  textKey: {
+    default: [{
+      text: 'string',
+      key: 'string'
+    }]
+  },
+  metrics: {
+    type: Array,
+    default: [{
+      "lable": "基础指标",
+      "children": [
+        {
+          "text": "消耗",
+          "disabled": false,
+          "checked": false,
+          "key": "xhmoney"
+        }
+      ]
+    },]
+  },
+  checkedMetrics: {
+    type: Array,
+    default: ['actcount']
+  },
+  fixedMetric: {
+    type: Object,
+    default: { item: '新增', key: 'actcount' }
+  },
+})
 const $emits = defineEmits(['update:checkedMetrics'])
 
 /**
@@ -209,7 +247,9 @@ const handleChooseitemClick = (i: string) => {
 }
 // 工具方法：用于右边指标栏某个指标被移除时，更新中间checkbox区状态
 const updateCheckboxStatus = (changedItem: string) => {
-  const changedKey = props.textKey.find((ele: textKeyItem) => ele.text === changedItem).key
+  const found = props.textKey.find((ele: textKeyItem) => ele.text === changedItem)
+  if (!found) return
+  const changedKey = found.key
   sidebarMenu.value.some((item: menuItem) => {
     const bingo = item.checkedList.includes(changedKey)
     if (bingo) {
@@ -279,7 +319,12 @@ const firstItem = computed(() => selectedItems.value[0])
  */
 const handleSubmit = () => {
   const list = selectedItems.value.map(
-    (item) => props.textKey.find((ele: textKeyItem) => ele.text === item).key
+    // (item) => props.textKey.find((ele: textKeyItem) => ele.text === item).key
+    (item) => {
+      const found = props.textKey.find((ele: textKeyItem) => ele.text === item)
+      if (!found) return props.fixedMetric.key
+      return found.key
+    }
   )
   // 将checked指标,回传给父组件。
   $emits('update:checkedMetrics', list)

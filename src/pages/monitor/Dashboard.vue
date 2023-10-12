@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import DateBar from '@/components/DateBar.vue'
 import DateComparer from '@/components/DateComparer.vue'
-import { useUserInfo } from '@/pinia/userInfo'
-import { watch, computed } from 'vue'
+// import { useUserInfo } from '@/pinia/userInfo'
+// import { computed } from 'vue'
 
-const store = useUserInfo()
-const appid = computed(() => store.appidSelected)
-watch(appid, (newV) => {
-  console.log(newV)
-})
+// // 从store获取选中的应用
+// const userinfoStroe = useUserInfo()
+// const reqConfig = computed(() => userinfoStroe.reqConfig)
 
 const receiveDaterange = (date: Date[]) => {
   console.log(date)

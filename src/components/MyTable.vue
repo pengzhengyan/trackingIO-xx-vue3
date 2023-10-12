@@ -5,7 +5,38 @@ import { ElConfigProvider } from 'element-plus'
 // 引入中文包
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
-const props = defineProps(['tableData', 'tableInfo', 'tabActiveBar', 'propKey'])
+// const props = defineProps(['tableData', 'tableInfo', 'tabActiveBar', 'propKey'])
+const props = defineProps({
+  tableData: {
+    type: Array,
+    default: [{
+      actcount: '',
+      cdate: '2023-09-01 00:00:00',
+      loginimei: '3',
+      newpayimeis: '0',
+      newpaymoneybyimei: '0',
+      paycount: '1',
+      payimeis: '1',
+      paymoney: '64800',
+      regcount: '0',
+      xhmoney: '0',
+    },]
+  },
+  tableInfo: {
+    type: Object,
+    default: {
+      id: 'tableID',
+      name: 'tableName',
+    }
+  },
+  tabActiveBar: {
+    type: Object,
+    default: { key: '1', label: 'cdate', text: '日期' }
+  },
+  propKey: {
+    default: [{ text: '日期', key: 'cdate' }]
+  }
+})
 
 // 分页
 const currentPage = ref(1)
@@ -32,8 +63,8 @@ const handleCurrentChange = (val: number) => {
                 ? props.tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
                 : []
                 ">
-      <el-table-column :prop="tabActiveBar?.label"
-                       :label="tabActiveBar?.text"
+      <el-table-column :prop="tabActiveBar.label"
+                       :label="tabActiveBar.text"
                        width="180" />
       <el-table-column v-for="item in propKey"
                        :key="item.key"
