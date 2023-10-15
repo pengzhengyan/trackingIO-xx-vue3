@@ -5,7 +5,7 @@ import { useConfig } from '@/pinia/config'
 import { useUserInfo } from '@/pinia/userInfo'
 import ManagerTable from '@/components/ManagerTable.vue'
 import MyTabbar from '@/components/MyTabbar.vue';
-import { getActivity, getChannalList, getActivityById, addActivity } from '@/api'
+import { getActivity, getChannalList, addActivity } from '@/api'
 import { ElMessage } from 'element-plus'
 
 
@@ -104,22 +104,19 @@ const handelEditPromotion = (id: string) => {
 }
 // 2.直接修改状态
 const editActivity = (id: string, state: boolean) => {
-  getActivityById(JSON.stringify({ xaid: id })).then((res) => {
-    if (res.data.length !== 1) return ElMessage.error('修改状态出错')
-    const { aname, durl } = res.data[0]
-    const type = 'update'
-    const data = { state: state, aname, durl }
-    const option = [{
-      type,
-      username: username.value,
-      aname,
-      pub: pub.value,
-      data
-    }]
-    console.log(option)
-    addActivity(JSON.stringify(option), reqConfig.value).then((res) => {
-      console.log(res)
-    })
+  if (id === '') return ElMessage.error('修改的活动的id不存在')
+  const type = 'update'
+  const data = { state: state }
+  const option = [{
+    type,
+    xaid: id,
+    username: username.value,
+    pub: pub.value,
+    data
+  }]
+
+  addActivity(JSON.stringify(option), reqConfig.value).then((res) => {
+    res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
   })
 }
 
@@ -163,6 +160,7 @@ onBeforeMount(() => {
           </el-select>
           <el-select class="my-select"
                      placeholder="筛选渠道"
+                     clearable
                      v-model="selectedChannel">
             <el-option v-for="option in channelOptions"
                        :key="option.channelid"

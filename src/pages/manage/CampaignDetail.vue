@@ -135,7 +135,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         const req = [{
           type: editType.value,
           username: username.value,
-
+          xaid: id.value,
           pub: pub.value,
           data: { aname: ruleForm.pomotionName, durl: ruleForm.appDownloadLink, state: '1' }
         }]
