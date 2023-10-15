@@ -1,7 +1,8 @@
 import http from "@/utils/request.js"
 
-type config = {
+type Config = {
   headers: {
+    username:string,
     pub:string
   }
 }
@@ -9,25 +10,32 @@ type config = {
 const login = (username:string, password:string) => http.post(`?api=/auth/login&username=${username}&password=${password}`)
 
 // 获取asa指标接口
-const getAsaMetrics = (config:config) => http.get('?api=/data/getindex&type=asa', config)
+const getAsaMetrics = (config:Config) => http.get('?api=/data/getindex&type=asa', config)
 
 // 获取asa数据
-const getAsaData = (options:string, config:config) => http.post('?api=/data/getasadata', options, config)
+const getAsaData = (options:string, config:Config) => http.post('?api=/data/getasadata', options, config)
 
 // 获取asa下拉列表
-const getAsaList = (options:string, config:config) => http.post('?api=/data/getasalist', options, config)
+const getAsaList = (options:string, config:Config) => http.post('?api=/data/getasalist', options, config)
 
 // 获取买量指标接口
-const getCampMetrics = (config:config) => http.get('?api=/data/getindex&type=ml', config)
+const getCampMetrics = (config:Config) => http.get('?api=/data/getindex&type=ml', config)
 
 // 获取买量数据
-const getCampData = (options:string, config:config) => http.post('?api=/data/getasadata', options, config)
+const getCampData = (options:string, config:Config) => http.post('?api=/data/getasadata', options, config)
 
 // 获取买量下拉列表
-const getCampList = (options:string, config:config) => http.post('?api=/data/getasalist', options, config)
+const getCampList = (options:string, config:Config) => http.post('?api=/data/getasalist', options, config)
 
 // 获取投放的渠道列表
-const getChannalList = () => http.get('?api=/data/getactivitylist')
+const getChannalList = (config:Config) => http.get('?api=/data/getchannellist',config)
+
+// 获取活动列表
+const getActivity = (config:Config) => http.get('?api=/data/getactivitylist',config)
+// 添加和编辑投放活动
+const addActivity = (options:string, config:Config) => http.post('?api=/data/addactivity', options, config)
+// 根据活动id获取活动信息
+const getActivityById = (options:string) => http.post('?api=/data/getedit',options)
 // 对外暴露接口
 export{
   login,
@@ -37,5 +45,8 @@ export{
   getCampMetrics,
   getCampList,
   getCampData,
-  getChannalList
+  getChannalList,
+  getActivity,
+  addActivity,
+  getActivityById
 }

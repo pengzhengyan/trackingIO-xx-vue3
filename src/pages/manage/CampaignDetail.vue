@@ -1,18 +1,28 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, onBeforeMount } from 'vue'
 import { useConfig } from '@/pinia/config'
-import type { FormRules, FormInstance } from 'element-plus'
+import { useUserInfo } from '@/pinia/userInfo'
+import { type FormRules, type FormInstance, ElMessage } from 'element-plus'
+import { getChannalList, addActivity, getActivityById } from '@/api'
+
 const router = useRouter()
 const useConfigStore = useConfig()
+const useUserInfoStore = useUserInfo()
 
 const handleGoback = () => {
   router.go(-1)
 }
+const username = computed(() => useUserInfoStore.loginId)
+const pub = computed(() => useUserInfoStore.appSelected)
+const reqConfig = computed(() => useUserInfoStore.reqConfig)
+const editType = computed(() => useConfigStore.promotionOption.isCreate ? "add" : "update")
+
 interface RuleForm {
-  channel: string,
+  channel: Channel,
   pomotionName: string,
   appDownloadLink: string,
+  curl: string,
   isMultiPromotion: boolean,
   isCustomer: boolean,
   start: number,
@@ -24,11 +34,15 @@ const rules = reactive<FormRules<RuleForm>>({
   channel: [
     { required: true, message: '必填', trigger: 'blur' },
   ],
+  pomotionName: [
+    { required: true, message: '必填', trigger: 'blur' }
+  ],
 })
 const ruleForm = reactive<RuleForm>({
-  channel: '', // 选定的渠道
+  channel: { label: '', value: '' }, // 选定的渠道
   pomotionName: '', // 推广活动名称
   appDownloadLink: '', // 应用下载地址
+  curl: '', // 应用点击监测试链接
   isMultiPromotion: false, // 是否多个活动
   isCustomer: false, // 是否自定义
   start: 1,
@@ -36,14 +50,38 @@ const ruleForm = reactive<RuleForm>({
   linkType: 'https'
 })
 // 推广渠道
+type Channel = { label: string; value: string }
 const channels = ref([
-  { label: '今日头条', value: 'toutiao' },
-  { label: '广点通', value: 'guangdiantong' },
-  { label: '百度原生', value: 'baidu' },
-  { label: 'Bilibili', value: 'bilibili' },
-  { label: '微博', value: 'weibo' },
-  { label: 'UC头条', value: 'uc' },
+  { label: '', value: '' },
 ])
+const initChannels = async () => {
+  const { data } = await getChannalList(reqConfig.value)
+  // 判断是否正确获取到数组
+  if (data.length === 0 || !Array.isArray(data)) return
+  channels.value = data.map((item: { channelname: string, channelid: string }) => {
+    return { label: item.channelname, value: item.channelid }
+  })
+  if (isCreate.value) return
+  // 如果是编辑状态，则进行编辑状态的初始化
+  initEdit()
+}
+// 初始化进入编辑状态
+const initEdit = async () => {
+  // 如果没有传入编辑的id，则回到推广活动管理页面
+  if (id.value === '') {
+    router.push({ name: 'manage-campaign' })
+    return
+  }
+  let { data } = await getActivityById(JSON.stringify({ xaid: id.value }))
+  data = data[0]
+  const channel = channels.value.find(item => item.value === data.channel_id)
+
+  if (!channel) return ElMessage.error('渠道信息有误')
+  ruleForm.pomotionName = data.aname
+  ruleForm.channel = channel
+  ruleForm.appDownloadLink = data.durl
+  ruleForm.curl = data.curl
+}
 
 // 是否新建活动
 const isCreate = computed(() => useConfigStore.promotionOption.isCreate)
@@ -53,18 +91,66 @@ const id = computed(() => useConfigStore.promotionOption.id)
 // 活动后缀终止
 const countEnd = computed(() => (ruleForm.start + ruleForm.count - 1).toString())
 
-
+// 提交表格
 const submitForm = async (formEl: FormInstance | undefined) => {
-  console.log(ruleForm)
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((valid) => {
+    // 表格校验成功时的操作
     if (valid) {
-      console.log('submit!')
+      if (isCreate.value) {
+        // 声明一个空的请求列表
+        const req = [{
+          type: editType.value,
+          username: username.value,
+          channel: ruleForm.channel.label,
+          channelid: ruleForm.channel.value,
+          aname: '',
+          durl: ruleForm.appDownloadLink,
+          pub: pub.value,
+          data: { aname: '', durl: ruleForm.appDownloadLink, state: '1' }
+        }]
+
+        // 根据是否添加多条分别处理
+        if (ruleForm.isMultiPromotion) {
+          for (let i = 0; i < ruleForm.count; i++) {
+            req[0].aname = ruleForm.pomotionName + (ruleForm.start + i)
+            req[0].data.aname = ruleForm.pomotionName + (ruleForm.start + i)
+
+            const reqJson = JSON.stringify(req)
+            addActivity(reqJson, reqConfig.value).then((res) => {
+              res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
+            })
+          }
+        } else {
+          req[0].aname = ruleForm.pomotionName
+          req[0].data.aname = ruleForm.pomotionName
+          const reqJson = JSON.stringify(req)
+          addActivity(reqJson, reqConfig.value).then((res) => {
+            console.log(res)
+            res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
+          })
+        }
+      } else {
+        // 声明一个空的请求列表
+        const req = [{
+          type: editType.value,
+          username: username.value,
+
+          pub: pub.value,
+          data: { aname: ruleForm.pomotionName, durl: ruleForm.appDownloadLink, state: '1' }
+        }]
+        console.log(req)
+        const reqJson = JSON.stringify(req)
+        addActivity(reqJson, reqConfig.value).then((res) => {
+          console.log(res)
+          res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
+        })
+      }
+      router.go(-1)
     } else {
-      console.log('error submit!', fields)
+      ElMessage.error('必填项不能为空')
     }
   })
-  router.go(-1)
 }
 
 const resetForm = (formEl: FormInstance | undefined) => {
@@ -72,6 +158,10 @@ const resetForm = (formEl: FormInstance | undefined) => {
   formEl.resetFields()
   router.go(-1)
 }
+
+onBeforeMount(() => {
+  initChannels()
+})
 </script>
 
 <template>
@@ -92,19 +182,20 @@ const resetForm = (formEl: FormInstance | undefined) => {
              ref="ruleFormRef">
       <el-card class="main-card">
         <el-form-item label="推广活动渠道"
-                      prop="name">
+                      prop="channel">
           <el-select v-model="ruleForm.channel"
+                     :disabled="!isCreate"
                      class="my-select"
                      style="width: 400px;"
                      placeholder="请选择渠道">
             <el-option v-for="channel in channels"
                        :key="channel.value"
                        :label="channel.label"
-                       :value="channel.value" />
+                       :value="channel" />
           </el-select>
         </el-form-item>
         <el-form-item label="推广活动名称"
-                      prop="name">
+                      prop="pomotionName">
           <el-input v-model="ruleForm.pomotionName"
                     class="my-input"
                     style="width: 400px;"
@@ -118,10 +209,11 @@ const resetForm = (formEl: FormInstance | undefined) => {
         </el-form-item>
         <el-form-item label="点击监测短链"
                       v-show="!isCreate">
-          <el-input class="my-input"
+          <el-input v-model="ruleForm.curl"
+                    class="my-input"
                     disabled
                     style="width: 400px;"
-                    placeholder="">{{ id }}</el-input>
+                    placeholder=""></el-input>
         </el-form-item>
         <el-form-item label="展示监测短链"
                       v-show="!isCreate">
@@ -132,7 +224,8 @@ const resetForm = (formEl: FormInstance | undefined) => {
         </el-form-item>
       </el-card>
       <el-card class="mt20 main-card">
-        <el-form-item label="创建类型">
+        <el-form-item label="创建类型"
+                      v-if="isCreate">
           <el-switch v-model="ruleForm.isMultiPromotion"
                      class="ml-2"
                      inline-prompt
@@ -193,11 +286,13 @@ const resetForm = (formEl: FormInstance | undefined) => {
             </div>
           </template>
         </el-form-item>
-        <el-form-item label="点击监测短链类型">
+        <el-form-item label="点击监测短链类型"
+                      v-if="isCreate">
           <el-radio-group v-model="ruleForm.linkType"
                           class="my-radio-group">
             <el-radio label="https">https</el-radio>
-            <el-radio label="http">http</el-radio>
+            <el-radio label="http"
+                      disabled>http</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-card>
@@ -214,7 +309,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
                      style="width: 90px;"
                      type="primary"
                      @click="submitForm(ruleFormRef)">
-            立即创建
+            {{ isCreate ? '立即创建' : '保存' }}
           </el-button>
         </el-form-item>
       </div>

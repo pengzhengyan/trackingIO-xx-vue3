@@ -23,6 +23,7 @@ export const useUserInfo = defineStore('userInfo', {
     reqConfig: (state) => {
       return {
         headers: {
+          username:state.loginId,
           pub : state.appSelected
         }
       }

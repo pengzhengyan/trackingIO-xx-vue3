@@ -1,17 +1,29 @@
 <script setup lang="ts">
-type Props = {
-  list: Array<{ key: string; text: string; label: string }>;
-  activeKey: string;
-}
+// type Props = {
+//   list: Array<{ key: string; text: string; label: string }>;
+//   activeKey: string;
+//   style: Object
+// }
 
 type Emits = {
   change: [key: string];
 }
 
-let { list, activeKey } = defineProps<Props>()
+let props = defineProps({
+  list: {
+    default: [{ key: '1', text: 'tab1', label: 'tab1' }],
+  },
+  activeKey: {
+    default: '1'
+  },
+  style: {
+    default: { fontSize: '16px', marginRight: '40px' }
+  }
+})
+
 let emit = defineEmits<Emits>()
 const handleClick = (key: string) => {
-  if (key === activeKey) return
+  if (key === props.activeKey) return
   emit('change', key)
 }
 </script>
@@ -19,6 +31,7 @@ const handleClick = (key: string) => {
 <template>
   <div class="Tab">
     <div class="tab-item"
+         :style="style"
          v-for="item of list"
          :key='item.key'
          :class="{ active: item.key === activeKey }"
