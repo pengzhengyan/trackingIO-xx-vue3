@@ -7,9 +7,7 @@ import { useUserInfo } from '@/pinia/userInfo'
 import { ElConfigProvider, ElMessage } from 'element-plus'
 // 引入中文包
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-// 引入上传文件相关
-import { genFileId } from 'element-plus'
-import type { UploadInstance, UploadProps, UploadRawFile, FormRules, FormInstance, } from 'element-plus'
+import type { FormRules, FormInstance, } from 'element-plus'
 import MyTabbar from '@/components/MyTabbar.vue';
 import { getActivity, getChannalList, addActivity } from '@/api'
 import { exportExcel } from '@/utils/exportExcel.ts'
@@ -70,16 +68,16 @@ const dialogFormVisible = ref(false)
 interface Form {
   type: string,
   isSelectAll: boolean,
-  uploadFile: string,
+  name: string,
 
 }
 const ruleFormRef = ref<FormInstance>()
 const form = reactive<Form>({
   type: '',
   isSelectAll: false,
-  uploadFile: '',
+  name: '',
 })
-const isChangeName = computed<boolean>((): boolean => form.type === '3')
+const isChangeName = computed<boolean>((): boolean => form.type === '3' && !form.isSelectAll)
 const rules = reactive<FormRules<Form>>({
   type: [
     { required: true, message: '必填', trigger: 'blur' },
@@ -87,11 +85,15 @@ const rules = reactive<FormRules<Form>>({
   isSelectAll: [
     { required: true, message: '必填', trigger: 'blur' }
   ],
-  uploadFile: [
+  name: [
     { required: true, message: '必填', trigger: 'blur' }
   ],
 })
-
+const currentChosenActivityName = computed(() => {
+  const list: any[] = []
+  selection.value.forEach((i) => { list.push(i.aname) })
+  return list
+})
 // 批量操作按钮的提交
 const handelSubmitMitiSelect = async (formEl: FormInstance | undefined) => {
   // 如果选择当前的数量为0
@@ -118,33 +120,42 @@ const handelSubmitMitiSelect = async (formEl: FormInstance | undefined) => {
           })
           break;
         case '3':
-
+          target.map((item: Activity, index) => {
+            // 修改本地
+            item.aname = form.name + (index + 1)
+            // 向服务端同步修改
+            editActivityName(item.xaid, item.aname)
+            return item
+          })
           break;
         default:
           break;
       }
       // 关闭dialog
-      // dialogFormVisible.value = false
+      dialogFormVisible.value = false
     } else {
       ElMessage.error('必填项不能为空')
     }
   })
 }
 
-// 上传批量修改名称文件
-const upload = ref<UploadInstance>()
+// 修改活动名
+const editActivityName = (id: string, aname: string) => {
+  if (id === '') return ElMessage.error('修改的活动的id不存在')
+  const type = 'update'
+  const data = { aname }
+  const option = [{
+    type,
+    xaid: id,
+    username: username.value,
+    pub: pub.value,
+    data
+  }]
 
-const handleExceed: UploadProps['onExceed'] = (files) => {
-  upload.value!.clearFiles()
-  const file = files[0] as UploadRawFile
-  file.uid = genFileId()
-  upload.value!.handleStart(file)
+  addActivity(JSON.stringify(option), reqConfig.value).then((res) => {
+    res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
+  })
 }
-
-// const handleBeforeUpload = (rawFile: UploadRawFile) => {
-//   console.log(rawFile)
-//   return false
-// }
 
 /** 表格主区 */
 // 注意：需要新建后自动下载
@@ -163,7 +174,6 @@ const handleSubtab = (key: string) => {
 const selection = ref<Activity[]>([])
 const handleSelectionChange = (val: Activity[]) => {
   selection.value = val
-  console.log(selection.value)
 }
 
 /* 表格主区*/
@@ -215,17 +225,14 @@ const handleCopy = (curl: string) => {
 const initPage = async () => {
   const { data: data1 } = await getActivity(reqConfig.value)
   activityList.value = data1
-  // console.log(activityList.value)
 
   const { data: data2 } = await getChannalList(reqConfig.value)
   channels.value = data2
-  // console.log(channels.value)
 }
 
 /** 编辑活动 */
 // 1.跳转编辑界面
 const handelEditPromotion = (id: string) => {
-  console.log(id)
   changePromotionOption(false, id)
   router.push({ name: 'manage-campaigndetail' })
 }
@@ -302,21 +309,22 @@ onBeforeMount(() => {
             <el-form-item label="选择批量操作类型"
                           label-width="140px"
                           prop="type">
-              <el-select v-model="form.type"
+              <el-select class="my-select width400"
+                         v-model="form.type"
                          placeholder="选择批量操作类型">
                 <el-option label="批量导出"
                            value="1" />
                 <el-option :label="selectedState === '0' ? '批量启用' : '批量停用'"
                            value="2" />
-                <el-option disabled
-                           label="批量修改活动名称"
+                <el-option label="批量修改活动名称"
                            value="3" />
               </el-select>
             </el-form-item>
             <el-form-item label="选择数据范围"
                           label-width="140px"
                           prop="isSelectAll">
-              <el-select v-model="form.isSelectAll"
+              <el-select class="my-select width400"
+                         v-model="form.isSelectAll"
                          placeholder="选择数据范围">
                 <el-option label="全部数据"
                            :value="true" />
@@ -325,26 +333,19 @@ onBeforeMount(() => {
               </el-select>
             </el-form-item>
             <el-form-item v-if="isChangeName"
-                          label="上传活动名称文件"
+                          label="修改后字段"
                           label-width="140px"
-                          prop="uploadFile">
-              <el-upload class="upload-demo"
-                         :limit="1"
-                         accept="file"
-                         :auto-upload="false"
-                         :on-exceed="handleExceed">
-                <el-input>
-                  <template #append>
-                    <el-button type="primary">选择文件</el-button>
-                  </template>
-                </el-input>
-              </el-upload>
+                          prop="name">
+              <el-input class="my-input width400"
+                        v-model="form.name"
+                        placeholder="修改后字段" />
             </el-form-item>
-            <el-form-item v-show="isChangeName"
-                          label=""
+            <el-form-item v-if="isChangeName"
+                          label="所选活动名称"
                           label-width="140px">
-              <el-button link
-                         type="primary">下载活动名称文件模板</el-button>
+              <span v-for="(name, i) in currentChosenActivityName"
+                    :key="i"
+                    style="margin-right: 15px; font-size: 12px;">{{ name }}</span>
             </el-form-item>
           </el-form>
           <template #footer>
@@ -446,8 +447,17 @@ onBeforeMount(() => {
   margin-right: 16px;
 }
 
+.width400 {
+  width: 400px;
+}
+
 :deep(.el-dialog) {
   border-radius: 8px;
+
+  .el-form-item__label {
+    font-size: 12px;
+    color: #606266;
+  }
 }
 
 .table-content {
