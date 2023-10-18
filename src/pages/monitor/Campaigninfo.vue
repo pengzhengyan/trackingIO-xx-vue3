@@ -259,6 +259,7 @@ onBeforeMount(() => {
                      v-model:checkedMetrics="checkedMetrics" />
 
       <el-select clearable
+                 filterable
                  multiple
                  collapse-tags
                  collapse-tags-tooltip

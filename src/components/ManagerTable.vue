@@ -50,7 +50,6 @@ const disabled = ref(false)
 const total = computed(() => props.tableData.length)
 
 const handleSizeChange = (val: number) => {
-  console.log(props.tableData)
   pageSize.value = val
 }
 const handleCurrentChange = (val: number) => {

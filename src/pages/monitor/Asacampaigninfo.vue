@@ -257,6 +257,7 @@ onBeforeMount(() => {
       </el-button>
 
       <el-select clearable
+                 filterable
                  multiple
                  collapse-tags
                  collapse-tags-tooltip

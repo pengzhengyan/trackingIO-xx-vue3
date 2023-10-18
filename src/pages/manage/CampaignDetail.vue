@@ -5,6 +5,7 @@ import { useConfig } from '@/pinia/config'
 import { useUserInfo } from '@/pinia/userInfo'
 import { type FormRules, type FormInstance, ElMessage } from 'element-plus'
 import { getChannalList, addActivity, getActivityById } from '@/api'
+import { exportExcel } from '@/utils/exportExcel.ts'
 
 const router = useRouter()
 const useConfigStore = useConfig()
@@ -98,6 +99,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     // 表格校验成功时的操作
     if (valid) {
       if (isCreate.value) {
+        // 导出表格用的表格名
+        const filename = `监测链接-${ruleForm.pomotionName}`
         // 声明一个空的请求列表
         const req = [{
           type: editType.value,
@@ -112,25 +115,31 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
         // 根据是否添加多条分别处理
         if (ruleForm.isMultiPromotion) {
+          const list = []
           for (let i = 0; i < ruleForm.count; i++) {
             req[0].aname = ruleForm.pomotionName + (ruleForm.start + i)
             req[0].data.aname = ruleForm.pomotionName + (ruleForm.start + i)
-
+            list.push({ name: ruleForm.pomotionName + (ruleForm.start + i), link: '暂无' })
             const reqJson = JSON.stringify(req)
             addActivity(reqJson, reqConfig.value).then((res) => {
               res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
             })
           }
+          // 导出添加链接的信息
+          exportExcel(list, filename)
         } else {
           req[0].aname = ruleForm.pomotionName
           req[0].data.aname = ruleForm.pomotionName
+          // 导出添加链接的信息
+          exportExcel([{ name: ruleForm.pomotionName, link: '暂无' }], filename)
           const reqJson = JSON.stringify(req)
           addActivity(reqJson, reqConfig.value).then((res) => {
-            console.log(res)
+
             res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
           })
         }
       } else {
+        // 编辑链接
         // 声明一个空的请求列表
         const req = [{
           type: editType.value,
@@ -139,10 +148,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           pub: pub.value,
           data: { aname: ruleForm.pomotionName, durl: ruleForm.appDownloadLink, state: '1' }
         }]
-        console.log(req)
+
         const reqJson = JSON.stringify(req)
         addActivity(reqJson, reqConfig.value).then((res) => {
-          console.log(res)
           res.data.code === 0 ? ElMessage.success(res.data.msg) : ElMessage.error(res.data.msg)
         })
       }
