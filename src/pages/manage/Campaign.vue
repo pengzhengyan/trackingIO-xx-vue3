@@ -201,7 +201,7 @@ const pageSize = ref(10)
 const small = ref(false)
 const background = ref(false)
 const disabled = ref(false)
-const total = computed(() => tableData.value.length)
+const total = computed(() => tableDataAll.value.length)
 
 const handleSizeChange = (val: number) => {
   pageSize.value = val
