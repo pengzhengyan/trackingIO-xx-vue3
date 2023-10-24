@@ -11,6 +11,7 @@ import type { FormRules, FormInstance, } from 'element-plus'
 import MyTabbar from '@/components/MyTabbar.vue';
 import { getActivity, getChannalList, addActivity } from '@/api'
 import { exportExcel } from '@/utils/exportExcel.ts'
+import { checkActivityName } from '@/utils/myFormRules'
 
 
 const router = useRouter()
@@ -78,6 +79,8 @@ const form = reactive<Form>({
   name: '',
 })
 const isChangeName = computed<boolean>((): boolean => form.type === '3' && !form.isSelectAll)
+
+// 表单校验规则
 const rules = reactive<FormRules<Form>>({
   type: [
     { required: true, message: '必填', trigger: 'blur' },
@@ -86,7 +89,7 @@ const rules = reactive<FormRules<Form>>({
     { required: true, message: '必填', trigger: 'blur' }
   ],
   name: [
-    { required: true, message: '必填', trigger: 'blur' }
+    { validator: checkActivityName, required: true, trigger: 'blur' }
   ],
 })
 const currentChosenActivityName = computed(() => {
@@ -337,7 +340,7 @@ onBeforeMount(() => {
                           label-width="140px"
                           prop="name">
               <el-input class="my-input width400"
-                        v-model="form.name"
+                        v-model.trim="form.name"
                         placeholder="修改后字段" />
             </el-form-item>
             <el-form-item v-if="isChangeName"

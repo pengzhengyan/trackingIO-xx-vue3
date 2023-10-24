@@ -6,6 +6,7 @@ import { useUserInfo } from '@/pinia/userInfo'
 import { type FormRules, type FormInstance, ElMessage } from 'element-plus'
 import { getChannalList, addActivity, getActivityById } from '@/api'
 import { exportExcel } from '@/utils/exportExcel.ts'
+import { checkActivityName } from '@/utils/myFormRules'
 
 const router = useRouter()
 const useConfigStore = useConfig()
@@ -31,12 +32,21 @@ interface RuleForm {
   linkType: string,
 }
 const ruleFormRef = ref<FormInstance>()
+// 表单校验规则
+const checkChannel = (_: any, value: any, fn: any) => {
+  if (value.value === '') {
+    console.log('必填')
+    fn(new Error('必填'))
+  } else {
+    fn()
+  }
+}
 const rules = reactive<FormRules<RuleForm>>({
   channel: [
-    { required: true, message: '必填', trigger: 'blur' },
+    { validator: checkChannel, trigger: 'blur', required: true },
   ],
   pomotionName: [
-    { required: true, message: '必填', trigger: 'blur' }
+    { validator: checkActivityName, trigger: 'blur', required: true }
   ],
 })
 const ruleForm = reactive<RuleForm>({
@@ -204,7 +214,7 @@ onBeforeMount(() => {
         </el-form-item>
         <el-form-item label="推广活动名称"
                       prop="pomotionName">
-          <el-input v-model="ruleForm.pomotionName"
+          <el-input v-model.trim="ruleForm.pomotionName"
                     class="my-input"
                     style="width: 400px;"
                     placeholder="请输入推广活动"></el-input>

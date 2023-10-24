@@ -24,6 +24,9 @@ let formState = $ref({
  */
 let buttonLoading = $ref(false)
 
+const enterlogin = (e: KeyboardEvent) => {
+  if (e.key === "Enter") handleLogIn()
+}
 /** 处理登录按钮点击事件 */
 async function handleLogIn() {
   let { email, password } = formState
@@ -68,7 +71,8 @@ async function handleLogIn() {
 </script>
 
 <template>
-  <div class="Login">
+  <div class="Login"
+       @keyup="enterlogin">
     <div class="left-content">
       <div class="title">
         <p>Welcome back!</p>
