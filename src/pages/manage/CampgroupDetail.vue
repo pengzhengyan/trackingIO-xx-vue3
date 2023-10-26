@@ -6,6 +6,7 @@ import { useUserInfo } from '@/pinia/userInfo'
 import { type FormRules, type FormInstance, ElMessage } from 'element-plus'
 import { getChannalList, addActivityGroup, getActivityGroupById, getActivity } from '@/api'
 import { checkActivityName } from '@/utils/myFormRules'
+import MyTransfer from '@/components/MyTransfer.vue'
 
 const router = useRouter()
 const useConfigStore = useConfig()
@@ -96,9 +97,6 @@ const id = computed(() => useConfigStore.campgroupOption.id)
 /**
  * 穿棱框
  */
-const filterMethod = (query: any, item: any) => {
-  return item.label.toLowerCase().includes(query.toLowerCase())
-}
 interface Option {
   key: string
   label: string
@@ -212,19 +210,13 @@ onBeforeMount(() => {
           </el-select>
         </el-form-item>
       </el-card>
+
       <el-card class="mt20 main-card">
-        <el-transfer v-model="ruleForm.activityList"
-                     filterable
-                     :filter-method="filterMethod"
-                     filter-placeholder="搜索关键词"
+        <my-transfer :data="activityList"
                      :titles="['选择推广活动', '已选活动']"
-                     :button-texts="['', '']"
-                     :format="{
-                       noChecked: '${total}',
-                       hasChecked: '${total}',
-                     }"
-                     :data="activityList" />
+                     v-model="ruleForm.activityList" />
       </el-card>
+
 
       <div class="mt20"
            style="display: flex; justify-content: right;">
