@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed } from 'vue'
+import { ElMessage, type FormRules, type FormInstance } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useUserInfo } from '@/pinia/userInfo'
 
@@ -12,7 +12,7 @@ const handleTabClick = () => {
   ElMessage.error('功能暂未开放')
 }
 
-const plantforms = [
+const platforms = [
   { icon: 'ios', label: 'iOS', value: '1' },
   { icon: 'android', label: 'Android', value: '2' },
   { icon: 'quickapp', label: '快应用', value: '3' },
@@ -22,6 +22,40 @@ const plantforms = [
   { icon: 'mediasite', label: '媒体自建站  ', value: '7' },
 ]
 
+/** 新建应用 */
+const dialogFormVisible = ref(false)
+// 新建应用的表单
+interface RuleForm {
+  pub: string,
+  platform: string,
+  name: string,
+}
+const ruleForm = ref<RuleForm>({
+  pub: '',
+  platform: '',
+  name: ''
+})
+const ruleFormRef = ref<FormInstance>()
+
+const formRules = reactive<FormRules>({
+  pub: [{ required: true, message: '必填', trigger: 'blur' }],
+  platform: [{ required: true, message: '必填', trigger: 'blur' }],
+  name: [
+    { required: true, message: '必填', trigger: 'blur' },
+    { max: 20, message: '40个字符以内', trigger: 'change' }
+  ],
+})
+const handelSubmitMitiSelect = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate((valid) => {
+    if (valid) {
+      console.log('submit!')
+    } else {
+      console.log('error submit!')
+      return false
+    }
+  })
+}
 /**
  * 应用列表区
  */
@@ -43,16 +77,61 @@ const handleAppcardClick = (pub: string) => {
   <div class="app-main">
     <div class="app-content"
          style="min-height: calc(100vh - 176px);">
-      <div class="app-head"
-           @click="handleTabClick">
+      <div class="app-head">
         <div class="app-lf">
           <el-button type="primary"
-                     class="broadBtn">
+                     class="broadBtn"
+                     @click="dialogFormVisible = true">
             <SvgIcon name="appicon1"
                      style="margin-right: 5px;" />新建应用
           </el-button>
+
+          <!-- 新建应用弹出框 -->
+          <el-dialog v-model="dialogFormVisible"
+                     :close-on-click-modal="false"
+                     title="新建应用">
+            <el-form ref="ruleFormRef"
+                     :model="ruleForm"
+                     :rules="formRules">
+              <el-form-item label="标识"
+                            prop="pub">
+                <el-select class="my-select width400"
+                           placeholder="请选择标识"
+                           v-model="ruleForm.pub"
+                           filterable>
+                  <el-option label="111111"
+                             value="111111" />
+                  <el-option label="111112"
+                             value="111112" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="平台"
+                            prop="platform">
+                <el-radio-group v-model="ruleForm.platform">
+                  <el-radio v-for="item in platforms"
+                            :key="item.value"
+                            :label="item.value">{{ item.label }}</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="应用名称"
+                            prop="name">
+                <el-input class="my-input width400"
+                          v-model.trim="ruleForm.name"></el-input>
+              </el-form-item>
+            </el-form>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取消</el-button>
+                <el-button type="primary"
+                           @click="handelSubmitMitiSelect(ruleFormRef)">
+                  提交
+                </el-button>
+              </span>
+            </template>
+          </el-dialog>
         </div>
-        <div class="app-rg">
+        <div class="app-rg"
+             @click="handleTabClick">
           <ul class="app-tabs">
             <li :class="activeTab === 0 ? 'on' : ''">已调试</li>
             <li :class="activeTab === 1 ? 'on' : ''">待调试</li>
@@ -72,7 +151,7 @@ const handleAppcardClick = (pub: string) => {
                      v-model="value"
                      placeholder="筛选系统平台"
                      @change="selectChangeHandle">
-            <el-option v-for="option in plantforms"
+            <el-option v-for="option in platforms"
                        :key="option.value"
                        :label="option.label"
                        :value="option.value">
@@ -137,6 +216,18 @@ const handleAppcardClick = (pub: string) => {
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      .app-lf {
+        :deep(.el-dialog) {
+          border-radius: 8px;
+
+          .el-form-item__label {
+            font-size: 12px;
+            color: #606266;
+            width: 140px;
+          }
+        }
+      }
 
       .app-rg {
         display: flex;
@@ -212,5 +303,9 @@ const handleAppcardClick = (pub: string) => {
 
 .mb-24 {
   margin-bottom: 24px;
+}
+
+.width400 {
+  width: 400px;
 }
 </style>

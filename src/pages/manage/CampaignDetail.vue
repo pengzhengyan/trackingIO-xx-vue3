@@ -35,7 +35,6 @@ const ruleFormRef = ref<FormInstance>()
 // 表单校验规则
 const checkChannel = (_: any, value: any, fn: any) => {
   if (value.value === '') {
-    console.log('必填')
     fn(new Error('必填'))
   } else {
     fn()

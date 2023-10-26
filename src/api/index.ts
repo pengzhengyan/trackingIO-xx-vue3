@@ -36,6 +36,13 @@ const getActivity = (config:Config) => http.get('?api=/data/getactivitylist',con
 const addActivity = (options:string, config:Config) => http.post('?api=/data/addactivity', options, config)
 // 根据活动id获取活动信息
 const getActivityById = (options:string) => http.post('?api=/data/getedit',options)
+// 获取活动组列表
+const getActivityGroup = (config:Config) => http.get('?api=/data/getgrouplist',config)
+// 添加和编辑活动组
+const addActivityGroup = (options:string, config:Config) => http.post('?api=/data/addgroup', options, config)
+// 根据活动id获取活动组信息
+const getActivityGroupById = (options:string, config:Config) => http.post('?api=/data/getgroupedit',options,config)
+
 // 对外暴露接口
 export{
   login,
@@ -48,5 +55,8 @@ export{
   getChannalList,
   getActivity,
   addActivity,
-  getActivityById
+  getActivityById,
+  getActivityGroup,
+  addActivityGroup,
+  getActivityGroupById
 }

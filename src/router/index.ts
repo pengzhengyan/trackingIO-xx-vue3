@@ -113,6 +113,11 @@ let routes: RouteRecordRaw[] = [
     name: 'manage-campaigndetail',
     component: () => import('@/pages/manage/CampaignDetail.vue')
   },
+  {
+    path: '/manage/campgroupdetail',
+    name: 'manage-campgroupdetail',
+    component: () => import('@/pages/manage/CampgroupDetail.vue')
+  },
 
   /** 数据服务 */
   {
