@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 
-
+type App = {
+  name: string
+  pub: string
+  platform: string
+  addtime: string
+  appid: string
+}
 export const useUserInfo = defineStore('userInfo', {
   state: () => ({
     username: '',
@@ -12,7 +18,9 @@ export const useUserInfo = defineStore('userInfo', {
     mlCheckedMetrics: ['actcount'],
 
     // 用户所拥有的应用信息
-    applist:[''],
+    applist:[
+      {name: '', pub: '', platform: '', addtime: '', appid: ''}
+    ],
 
     /**
      * 用户选择的appid
@@ -42,6 +50,10 @@ export const useUserInfo = defineStore('userInfo', {
     reselectApp (pub:string) {
       this.appSelected = pub
     },
+    // 更新applist
+    updateApplist (applist:App[]) {
+      this.applist = applist
+    }
   },
   persist: true
 },)

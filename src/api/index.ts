@@ -9,6 +9,9 @@ type Config = {
 // 登录
 const login = (username:string, password:string) => http.post(`?api=/auth/login&username=${username}&password=${password}`)
 
+// 添加应用
+const addApp = (options:string, config:Config) => http.post('?api=/data/addapplication', options, config)
+
 // 获取asa指标接口
 const getAsaMetrics = (config:Config) => http.get('?api=/data/getindex&type=asa', config)
 
@@ -46,6 +49,7 @@ const getActivityGroupById = (options:string, config:Config) => http.post('?api=
 // 对外暴露接口
 export{
   login,
+  addApp,
   getAsaMetrics,
   getAsaData,
   getAsaList,
