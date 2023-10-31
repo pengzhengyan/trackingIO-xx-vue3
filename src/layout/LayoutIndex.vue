@@ -222,7 +222,7 @@ const selectChange = (value: string) => {
   <template v-if="pageLayout === PageLayout.NotSidebar">
     <div class="Layout">
       <div class="main-container">
-        <div class="header">
+        <div class="header pd25">
           <div class="left">
             <div class="logo"
                  style="width: 128px;">
@@ -236,7 +236,8 @@ const selectChange = (value: string) => {
         </div>
         <div class="main-content"
              style="margin: 10px 0">
-          <el-scrollbar height="100%">
+          <el-scrollbar class="pd25"
+                        height="100%">
             <router-view />
           </el-scrollbar>
         </div>
@@ -290,12 +291,12 @@ const selectChange = (value: string) => {
                        :src="avatarSrc" />
           </div>
         </div>
-        <div class="main-content"
+        <div class="main-content "
              style="margin: 10px 0">
-          <el-scrollbar height="100%">
+          <el-scrollbar height="100%"
+                        class="pd25">
             <router-view />
           </el-scrollbar>
-
         </div>
       </div>
     </div>
@@ -375,7 +376,6 @@ const selectChange = (value: string) => {
   .main-container {
     width: 100%;
     flex-grow: 1;
-    padding: 0 25px;
     background-color: #f6f6f6;
     // overflow: auto;
 
@@ -383,7 +383,7 @@ const selectChange = (value: string) => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 0;
+      padding: 12px 25px;
 
       .right {
         .user-avata {
@@ -401,6 +401,11 @@ const selectChange = (value: string) => {
       overflow: auto;
       height: calc(100vh - 72px);
       margin-top: 72px;
+
+      .pd25 {
+        padding: 0 25px;
+
+      }
     }
   }
 }

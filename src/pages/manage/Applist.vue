@@ -84,7 +84,7 @@ const handelSubmitMitiSelect = (formEl: FormInstance | undefined) => {
         pub: ruleForm.value.pub,
       } : {
         type: type.value,
-        id: editAppId.value,
+        appid: editAppId.value,
         data: {
           name: ruleForm.value.name,
           pub: ruleForm.value.pub,
@@ -251,9 +251,9 @@ const formatDate = (time: string) => moment(Number(time) * 1000).format('YYYY-MM
           <!-- <p class="app-list-subtitle">暂无常用应用，请点击以下应用右下角图钉按钮进行设置 </p> -->
           <el-row>
             <el-col :span="8"
-                    style="padding-right: 10px;"
-                    v-for="app in applist"
-                    :key="app.appid">
+                    v-for="(app, index) in applist"
+                    :key="app.appid"
+                    :class="{ pr10: (index + 1) % 3 }">
               <el-card class="app-card"
                        @click="handleAppcardClick(app.pub)">
                 <div class="app-info">
@@ -381,6 +381,10 @@ const formatDate = (time: string) => moment(Number(time) * 1000).format('YYYY-MM
       }
     }
   }
+}
+
+.pr10 {
+  padding-right: 10px;
 }
 
 .mr-16 {
