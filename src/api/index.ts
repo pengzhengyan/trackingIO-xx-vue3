@@ -50,6 +50,8 @@ const getActivityGroupById = (options:string, config:Config) => http.post('?api=
 const getOverview = (options:string, config:Config) => http.post('?api=/data/getoverview', options, config)
 // 日期对比
 const comparedByDate = (options:string, config:Config) => http.post('?api=/data/getcontrast', options, config)
+// 数据概览
+const getSumdata = (options:string, config:Config) => http.post('?api=/data/getovsumdata', options, config)
 
 // 对外暴露接口
 export{
@@ -69,5 +71,6 @@ export{
   addActivityGroup,
   getActivityGroupById,
   getOverview,
-  comparedByDate
+  comparedByDate,
+  getSumdata
 }
