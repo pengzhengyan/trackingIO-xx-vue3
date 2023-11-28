@@ -46,6 +46,11 @@ const addActivityGroup = (options:string, config:Config) => http.post('?api=/dat
 // 根据活动id获取活动组信息
 const getActivityGroupById = (options:string, config:Config) => http.post('?api=/data/getgroupedit',options,config)
 
+// 趋势概览
+const getOverview = (options:string, config:Config) => http.post('?api=/data/getoverview', options, config)
+// 日期对比
+const comparedByDate = (options:string, config:Config) => http.post('?api=/data/getcontrast', options, config)
+
 // 对外暴露接口
 export{
   login,
@@ -62,5 +67,7 @@ export{
   getActivityById,
   getActivityGroup,
   addActivityGroup,
-  getActivityGroupById
+  getActivityGroupById,
+  getOverview,
+  comparedByDate
 }

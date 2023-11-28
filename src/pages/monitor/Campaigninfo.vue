@@ -52,11 +52,11 @@ let tabList = [
     text: '活动',
     label: 'aid', //xaid
   },
-  {
-    key: '2',
-    text: '活动组',
-    label: 'agid', // 待钟韧扩展
-  },
+  // {
+  //   key: '2',
+  //   text: '活动组',
+  //   label: 'group', // 待钟韧扩展
+  // },
   {
     key: '3',
     text: '渠道',
@@ -66,11 +66,6 @@ let tabList = [
     key: '4',
     text: '子渠道',
     label: 'acid',
-  },
-  {
-    key: '5',
-    text: '子帐号',
-    label: 'ggzid',
   },
 ]
 const tabbarClickHandle = (key: string) => {
@@ -114,13 +109,13 @@ const initCampMetrics = async () => {
 let filterGroups = ref([
   // { placeholder: '请选择转化类型',label:'', value:[], options: [] },
   // { placeholder: '请选择匹配类型',label:'', value:[], options: [] },
-  { placeholder: '请选择acid', label: 'acid', value: [], options: [] },
-  { placeholder: '请选择agid', label: 'agid', value: [], options: [] },
+  { placeholder: '请选择adgroup', label: 'adgroup', value: [], options: [] },
+  { placeholder: '请选择adtype', label: 'adtype', value: [], options: [] },
   { placeholder: '请选择活动', label: 'aid', value: [], options: [] },
   { placeholder: '请选择渠道', label: 'channelid', value: [], options: [] },
-  { placeholder: '请选择ggzid', label: 'ggzid', value: [], options: [] },
-  { placeholder: '请选择maid', label: 'maid', value: [], options: [] },
-  { placeholder: '请选择pid', label: 'pid', value: [], options: [] },
+  // { placeholder: '请选择ggzid', label: 'ggzid', value: [], options: [] },
+  // { placeholder: '请选择maid', label: 'maid', value: [], options: [] },
+  // { placeholder: '请选择pid', label: 'pid', value: [], options: [] },
   // { placeholder: '请选择筛选器模板', label: 'ggzid', value: [], options: [] },
 ])
 
@@ -199,7 +194,7 @@ const requestAsaData = async () => {
   if (!res.list) res.list = ['actcount']
   const json = JSON.stringify(res)
   const { data } = await getCampData(json, reqConfig.value)
-  if (data.code) return ElMessage.error('asa请求参数错误.')
+  if (data.code) return ElMessage.error('camp请求参数错误.')
   const lastItem = data.pop()
   data.unshift(lastItem)
   asaData.value = data

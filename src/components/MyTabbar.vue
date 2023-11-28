@@ -11,7 +11,7 @@ type Emits = {
 
 let props = defineProps({
   list: {
-    default: [{ key: '1', text: 'tab1', label: 'tab1' }],
+    default: [{ key: '1', text: 'tab1', label: 'tab1' }, { key: '2', text: 'tab2', label: 'tab2' }],
   },
   activeKey: {
     default: '1'

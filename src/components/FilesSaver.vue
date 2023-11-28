@@ -3,10 +3,22 @@
 import * as FileSaver from 'file-saver'
 import * as XLSX from 'xlsx'
 import moment from 'moment'
+interface Info {
+  id: string
+  name: string
+}
+interface Props {
+  datarange?: number[]
+  tableInfo?: Info
+}
 
-const props = defineProps(['datarange', 'tableInfo'])
+const props = withDefaults(defineProps<Props>(), {
+  datarange: () => [0, 0],
+  tableInfo: () => { return { id: '', name: '' } },
+})
 // 导出表格
 const exportExcel = () => {
+  if (!props.tableInfo.id) return
   /* 从表生成工作簿对象 */
   const wb = XLSX.utils.table_to_book(document.querySelector(`#${props.tableInfo.id}`))
   /* 获取二进制字符串作为输出 */

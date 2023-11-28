@@ -271,8 +271,8 @@ onBeforeMount(() => {
                type="primary"
                @click="handelCratePromotion()">新建推广链接</el-button>
     <!-- <el-button class="broadBtn"
-               type="primary"
-               @click="handelEditPromotion('111')">编辑推广链接</el-button> -->
+                 type="primary"
+                 @click="handelEditPromotion('111')">编辑推广链接</el-button> -->
   </div>
   <div class="table-content">
     <div class="sub-title">

@@ -56,34 +56,37 @@ const handleCurrentChange = (val: number) => {
 
 <template>
   <div class="table-content">
-    <el-table stripe
-              max-height="450"
-              :id="props.tableInfo.id"
-              :data="props.tableData
-                ? props.tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                : []
-                ">
-      <el-table-column :prop="tabActiveBar.label"
-                       :label="tabActiveBar.text"
-                       width="180" />
-      <el-table-column v-for="item in propKey"
-                       :key="item.key"
-                       :prop="item.key"
-                       :label="item.text" />
-    </el-table>
-    <div class="pagination-container">
-      <el-config-provider :locale="zhCn">
-        <el-pagination v-model:current-page="currentPage"
-                       v-model:page-size="pageSize"
-                       :page-sizes="[10, 20, 30, 50, 100]"
-                       :small="small"
-                       :disabled="disabled"
-                       :background="background"
-                       layout="total, sizes, prev, pager, next"
-                       :total="total"
-                       @size-change="handleSizeChange"
-                       @current-change="handleCurrentChange" />
-      </el-config-provider>
+    <div class="table-item">
+      <el-table stripe
+                max-height="450"
+                :id="props.tableInfo.id"
+                :data="props.tableData
+                  ? props.tableData.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                  : []
+                  ">
+        <el-table-column :prop="tabActiveBar.label"
+                         :label="tabActiveBar.text"
+                         fixed
+                         width="180" />
+        <el-table-column v-for="item in propKey"
+                         :key="item.key"
+                         :prop="item.key"
+                         :label="item.text" />
+      </el-table>
+      <div class="pagination-container">
+        <el-config-provider :locale="zhCn">
+          <el-pagination v-model:current-page="currentPage"
+                         v-model:page-size="pageSize"
+                         :page-sizes="[10, 20, 30, 50, 100]"
+                         :small="small"
+                         :disabled="disabled"
+                         :background="background"
+                         layout="total, sizes, prev, pager, next"
+                         :total="total"
+                         @size-change="handleSizeChange"
+                         @current-change="handleCurrentChange" />
+        </el-config-provider>
+      </div>
     </div>
   </div>
 </template>
@@ -98,9 +101,16 @@ const handleCurrentChange = (val: number) => {
   box-shadow: 0 8px 16px #e5e6ed;
   width: 100%;
   overflow: auto;
+  display: flex;
 
-  .pagination-container {
-    padding-top: 16px;
+  .table-item {
+    width: 400px;
+    overflow: auto;
+    flex: auto;
+
+    .pagination-container {
+      padding-top: 16px;
+    }
   }
 }
 
