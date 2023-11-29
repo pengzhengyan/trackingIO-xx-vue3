@@ -208,7 +208,6 @@ const avatarSrc =
 const applist = computed(() => userinfoStroe.applist)
 const appid = computed(() => userinfoStroe.appSelected)
 const selectChange = (value: string) => {
-  console.log(value)
   userinfoStroe.reselectApp(value)
   // 注意：选择的appid值变更后，会回到dashboard
   router.push({ name: 'monitor-dashboard' })
