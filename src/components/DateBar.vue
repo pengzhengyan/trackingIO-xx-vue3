@@ -76,6 +76,8 @@ const quickDateBtnHandle = (key: string) => {
   emit('sendDaterange', pickedRange.value)
 }
 const elDatePickerHandle = () => {
+  // 自定义时间时，清除快捷选项
+  dateItemActiveKey.value = ''
   emit('sendDaterange', pickedRange.value)
 }
 
