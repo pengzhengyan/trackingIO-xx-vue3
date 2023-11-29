@@ -14,7 +14,7 @@ const arrows = computed<string[]>(() => {
   })
   return list
 })
-// 对数据进行处理
+// 处理千和万显示的方法
 const formatData = (v: string): string => {
   let n = Number(v)
   if (n < 1000) {
