@@ -298,6 +298,7 @@ const selectChange = (value: string) => {
           <el-scrollbar height="100%"
                         class="pd25">
             <router-view />
+            <p style="text-align: center; color: rgb(186, 187, 196); font-size: 12px; padding: 50px 0px 16px;"></p>
           </el-scrollbar>
         </div>
       </div>

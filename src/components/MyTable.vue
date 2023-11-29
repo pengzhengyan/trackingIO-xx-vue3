@@ -132,6 +132,11 @@ const handleCurrentChange = (val: number) => {
   white-space-collapse: collapse;
   text-wrap: nowrap;
 
+  .el-pagination__total {
+    height: 28px;
+    line-height: 28px;
+  }
+
   .el-pagination__sizes {
     text-align: left;
     flex: 1 1 0%;
@@ -143,6 +148,7 @@ const handleCurrentChange = (val: number) => {
 
       .el-input__inner {
         height: 28px;
+        font-size: 13px;
       }
     }
   }
