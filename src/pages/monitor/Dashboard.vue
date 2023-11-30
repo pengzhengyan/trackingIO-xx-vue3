@@ -20,6 +20,7 @@ import type { BarSeriesOption, LineSeriesOption } from 'echarts/charts'
 import type { TitleComponentOption, TooltipComponentOption, GridComponentOption, DatasetComponentOption, LegendComponentOption } from 'echarts/components'
 import type { ComposeOption, } from 'echarts/core'
 import { EChartsType } from 'echarts/types/dist/shared'
+import MyTabbar from '@/components/MyTabbar.vue'
 
 // 通过 ComposeOption 来组合出一个只有必须组件和图表的 Option 类型
 type ECOption = ComposeOption<
@@ -203,6 +204,11 @@ const chartOptOfTrend = ref<ECOption>(
       {
         name: '激活率',
         type: 'value',
+        max: (value) => {
+          const max = value.max + 0.1
+          return max > 1 ? value.max : max
+        },
+        min: 0,
         alignTicks: true,
         position: 'right',
         axisLine: {
@@ -212,7 +218,12 @@ const chartOptOfTrend = ref<ECOption>(
             width: 0.3,
           }
         },
-        offset: 40,
+        axisLabel: {
+          formatter: function (value) {
+            return (value * 100).toFixed(1) + '%'
+          }
+        },
+        offset: 50,
       }
     ],
     xAxis: {
@@ -229,10 +240,10 @@ const chartOptOfTrend = ref<ECOption>(
       },
     },
     legend: { icon: 'circle', itemHeight: 7 },
-    grid: { left: 50, right: 80 },
+    grid: { left: 50, right: 100 },
   }
 )
-
+// 根据请求到的新数据，重新的设置option的方法
 const setChartOptOfTrend = (): void => {
   const tableData: TrendData[] = tableDataOfTrend.value
   const propLabel = keyPropOfTrend
@@ -253,7 +264,7 @@ const setChartOptOfTrend = (): void => {
     keys.shift() // 去掉'cdate'
     const series = [] as (BarSeriesOption | LineSeriesOption)[]
     keys.forEach((key: string, index) => {
-      const dataList = tableData.map((item: any) => item[key])
+      const dataList = tableData.map((item: any) => Number(item[key]))
       if (index < 3) {
         const seriesItem: BarSeriesOption | LineSeriesOption = {
           name: legendData[index],
@@ -302,7 +313,21 @@ const requestTrend = async () => {
   setChartOptOfTrend()
 }
 
-// 初始化页面
+/**
+ * 日期对比
+ */
+// const hasCompared = ref(true)
+// const keyPropOfCompared = [
+//   { prop: 'cdate', label: '日期' },
+//   { prop: 'ziran', label: '自然量' },
+//   { prop: 'tuiguang', label: '推广量' },
+//   { prop: 'click', label: '有效点击' },
+//   { prop: 'actrate', label: '激活率' },
+// ]
+
+/**
+ * 初始化页面
+ */
 onBeforeMount(() => {
   requestSumdata()
   requestTrend()
@@ -360,51 +385,63 @@ const formatKW = (n: number): string => {
 
     <div class="title">日期对比</div>
     <DateComparer @sendDates="receiveDates"></DateComparer>
-    <el-row class="mt20"
-            style="margin-left: -7.5px; margin-right: -7.5px;">
+    <el-row class="mt20">
       <el-col :span="12"
               class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <!-- <TableChart :height="320"
+              style="padding-right: 7.5px;">
+        <TableChart :height="320"
+                    :hasData="false"
+                    :hasHeader="true"
                     :chartId="'compareByDate1'"
-                    :tableId="'compareTable1'" /> -->
+                    :tableId="'compareTable1'">
+          <template #header>
+            <div :style="{ height: '30px' }">
+              <MyTabbar></MyTabbar>
+            </div>
+          </template>
+          <template #chart>
+            <div id="dateComparer1"
+                 :style="{ height: '260px' }"></div>
+          </template>
+        </TableChart>
       </el-col>
       <el-col :span="12"
               class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <!-- <TableChart :height="320"
+              style="padding-left: 7.5px;">
+        <TableChart :height="320"
+                    :hasData="false"
                     :chartId="'compareByDate2'"
-                    :tableId="'compareTable2'" /> -->
+                    :tableId="'compareTable2'" />
       </el-col>
     </el-row>
 
-    <div class="title">核心指标效果</div>
-    <el-row class="mt20"
+    <!-- <div class="title">核心指标效果</div> -->
+    <!-- <el-row class="mt20"
             style="margin-left: -7.5px; margin-right: -7.5px;">
       <el-col :span="8"
               class="mb20"
               style="padding-left: 7.5px; padding-right: 7.5px;">
-        <!-- <TableChart :height="410"
+        <TableChart :height="410"
                     :chartId="'coreMetric1'"
-                    :tableId="'comreMetricTable1'" /> -->
+                    :tableId="'comreMetricTable1'" />
       </el-col>
       <el-col :span="8"
               class="mb20"
               style="padding-left: 7.5px; padding-right: 7.5px;">
-        <!-- <TableChart :height="410"
+        <TableChart :height="410"
                     :chartId="'coreMetric2'"
-                    :tableId="'comreMetricTable2'" /> -->
+                    :tableId="'comreMetricTable2'" />
       </el-col>
       <el-col :span="8"
               class="mb20"
               style="padding-left: 7.5px; padding-right: 7.5px;">
-        <!-- <TableChart :height="410"
+        <TableChart :height="410"
                     :chartId="'coreMetric3'"
-                    :tableId="'comreMetricTable3'" /> -->
+                    :tableId="'comreMetricTable3'" />
       </el-col>
 
-    </el-row>
-    <div class="title">核心渠道效果</div>
+    </el-row> -->
+    <!-- <div class="title">核心渠道效果</div> -->
     <!-- <el-row class="mt20"
             style="margin-left: -7.5px; margin-right: -7.5px;">
       <el-col :span="8"

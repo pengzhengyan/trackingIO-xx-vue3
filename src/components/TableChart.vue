@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue'
 import FilesSaver from '@/components/FilesSaver.vue'
 import { imgChart, imgTable, imgNodata } from '@/utils/base64'
-import MyTabbar from '@/components/MyTabbar.vue'
 
 type PropLabel = {
   prop: string
@@ -10,24 +9,22 @@ type PropLabel = {
 }
 interface Props {
   height?: number
-  hasTapbar?: boolean
-  hasData?: boolean
+  hasHeader?: boolean
+  hasData: boolean
   tableId: string,
   tablename?: string,
-  tableData: any[],
-  propLabel: PropLabel[],
+  tableData?: any[],
+  propLabel?: PropLabel[],
   datarange?: number[]
 }
 const props = withDefaults(defineProps<Props>(), {
   height: 320,
-  hasTapbar: false,
+  hasHeader: false,
   hasData: false,
   tableId: 'myTable',
   tablename: 'myTable',
 })
 const isChart = ref(true)
-const activeKey = ref('1')
-
 
 // 表格开始
 const chartWarpHeight = computed(() => props.height - 40)
@@ -53,11 +50,11 @@ onMounted(() => {
                :style="{ 'background-image': isChart ? `url(${imgTable})` : `url(${imgChart})` }"
                @click="isChart = !isChart">
           </div>
-          <div class="tap-bar"
-               v-if="hasTapbar"
+          <div class="header-box"
+               v-if="hasHeader"
                v-show="isChart">
-            <slot name="tapbar">
-              <MyTabbar :activeKey="activeKey"></MyTabbar>
+            <slot name="header">
+              <div>header</div>
             </slot>
           </div>
           <div class="chart-box"
@@ -139,8 +136,7 @@ onMounted(() => {
         background-image: linear-gradient(45deg, rgb(255, 255, 255) 50%, rgba(199, 199, 199, 0.38) 50%);
       }
 
-      .tap-bar {
-        height: 30px;
+      .header-box {
         display: block;
       }
 
