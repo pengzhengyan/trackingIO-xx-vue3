@@ -194,7 +194,7 @@ const requestAsaData = async () => {
   if (!res.list) res.list = ['actcount']
   const json = JSON.stringify(res)
   const { data } = await getAsaData(json, reqConfig.value)
-  if (data.code) return ElMessage.error('asa请求参数错误.')
+  if (data.code && !Array.isArray(data)) return ElMessage.error('返回数据错误.')
   const lastItem = data.pop()
   data.unshift(lastItem)
   asaData.value = data

@@ -52,11 +52,11 @@ let tabList = [
     text: '活动',
     label: 'aid', //xaid
   },
-  // {
-  //   key: '2',
-  //   text: '活动组',
-  //   label: 'group', // 待钟韧扩展
-  // },
+  {
+    key: '2',
+    text: '活动组',
+    label: 'group', // 待钟韧扩展
+  },
   {
     key: '3',
     text: '渠道',
@@ -194,7 +194,7 @@ const requestAsaData = async () => {
   if (!res.list) res.list = ['actcount']
   const json = JSON.stringify(res)
   const { data } = await getCampData(json, reqConfig.value)
-  if (data.code) return ElMessage.error('camp请求参数错误.')
+  if (data.code === -1 && !Array.isArray(data)) return ElMessage.error('返回错误.')
   const lastItem = data.pop()
   data.unshift(lastItem)
   asaData.value = data
