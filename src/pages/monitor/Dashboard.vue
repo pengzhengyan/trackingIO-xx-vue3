@@ -3,9 +3,9 @@ import DateBar from '@/components/DateBar.vue'
 import DateComparer from '@/components/DateComparer.vue'
 import DashBoardCard from '@/components/DashboardCard.vue'
 import TableChart from '@/components/TableChart.vue'
-import { getSumdata, getOverview } from '@/api'
+import { getSumdata, getOverview, getCoreIndicators } from '@/api'
 import { useUserInfo } from '@/pinia/userInfo'
-import { ref, computed, onBeforeMount, onMounted, watch } from 'vue'
+import { ref, computed, onBeforeMount, onMounted } from 'vue'
 import moment from 'moment'
 // 引入Echarts
 import * as echarts from 'echarts/core'
@@ -21,6 +21,7 @@ import type { TitleComponentOption, TooltipComponentOption, GridComponentOption,
 import type { ComposeOption, } from 'echarts/core'
 import { EChartsType } from 'echarts/types/dist/shared'
 import MyTabbar from '@/components/MyTabbar.vue'
+import TkioCard from '@/components/TkioCard.vue'
 
 // 通过 ComposeOption 来组合出一个只有必须组件和图表的 Option 类型
 type ECOption = ComposeOption<
@@ -62,9 +63,10 @@ const receiveDaterange = (date: Date[]) => {
   // 更新日期后，请求数据
   requestSumdata()
   requestTrend()
+  reqCoreIndicatorsData()
 }
-const receiveDates = (date: Date[]) => {
-  console.log(date)
+const receiveDates = (_date: Date[]) => {
+  // console.log(date)
 }
 
 /**
@@ -137,24 +139,20 @@ const tableDataOfTrend = ref<TrendData[]>([
     payimeis: '',
   },
 ])
-// 当表格数据更新时，重新设置一下Echarts的option
-watch(tableDataOfTrend, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    chartOfTrend.setOption(chartOptOfTrend.value)
-  }
-})
 
 /**趋势预览Echarts从这里开始 */
 // 存放趋势预览Echarts的变量
 let chartOfTrend: EChartsType = null as unknown as EChartsType
 
-// 设置趋势预览Echarts初始option
-const chartOptOfTrend = ref<ECOption>(
-  {
+// 设置趋势预览Echarts 的 option
+const optionOfChartTrend = computed<ECOption>(() => {
+  const tableData: TrendData[] = tableDataOfTrend.value
+  const propLabel = keyPropOfTrend
+  const option: ECOption = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'cross'
+        type: 'line'
       }
     },
     yAxis: [
@@ -193,6 +191,7 @@ const chartOptOfTrend = ref<ECOption>(
             return formatKW(value)
           }
         },
+        splitLine: { show: false },
         axisLine: {
           show: true,
           lineStyle: {
@@ -204,12 +203,12 @@ const chartOptOfTrend = ref<ECOption>(
       {
         name: '激活率',
         type: 'value',
-        max: (value) => {
-          const max = value.max + 0.1
-          return max > 1 ? value.max : max
-        },
+        // max: (value) => {
+        //   const max = value.max + 0.1
+        //   return max > 1 ? 1 : max
+        // },
         min: 0,
-        alignTicks: true,
+        // alignTicks: true,
         position: 'right',
         axisLine: {
           show: true,
@@ -220,9 +219,10 @@ const chartOptOfTrend = ref<ECOption>(
         },
         axisLabel: {
           formatter: function (value) {
-            return (value * 100).toFixed(1) + '%'
+            return formatKW(value)
           }
         },
+        splitLine: { show: false },
         offset: 50,
       }
     ],
@@ -242,22 +242,18 @@ const chartOptOfTrend = ref<ECOption>(
     legend: { icon: 'circle', itemHeight: 7 },
     grid: { left: 50, right: 100 },
   }
-)
-// 根据请求到的新数据，重新的设置option的方法
-const setChartOptOfTrend = (): void => {
-  const tableData: TrendData[] = tableDataOfTrend.value
-  const propLabel = keyPropOfTrend
   if (tableData.length === 0 || propLabel.length < 2) {
     hasTrend.value = false
   } else {
     hasTrend.value = true;
     // 设置xAxisData
-    (chartOptOfTrend.value.xAxis as any).data = tableData.map((item) => item.cdate)
+    const xAxisData = tableData.map((item) => item.cdate)
+      ; (option.xAxis as any).data = xAxisData
 
     // 设置legend
     const legendData = propLabel.map((item) => item.label)
-    legendData.shift(); // 去掉'日期'
-    (chartOptOfTrend.value.legend as any).data = legendData
+    legendData.shift() // 去掉'日期'
+      ; (option.legend as any).data = legendData
 
     // 设置series
     const keys = propLabel.map((item) => item.prop)
@@ -287,10 +283,12 @@ const setChartOptOfTrend = (): void => {
         series.push(seriesItem)
       }
     })
-    chartOptOfTrend.value.series = series
+    option.series = series
   }
-}
+  return option
+})
 
+// 请求趋势数据、设置table数据、设置chart option的方法
 const requestTrend = async () => {
   // 请求体，json格式
   const res = {
@@ -310,9 +308,149 @@ const requestTrend = async () => {
   })
   // 将数据存到tableDataOfTrend
   tableDataOfTrend.value = data as TrendData[]
-  setChartOptOfTrend()
+  chartOfTrend.setOption(optionOfChartTrend.value)
 }
-
+/**
+ * 核心指标效果
+ */
+// 定义数组，存放三个核心指标的名字
+type IndicatorData = {
+  cdate?: string
+  tuiguang: string
+  ziran: string
+  total: string
+}
+const indicators = ['reg', 'retention', 'pay']
+const indicatorsChartIds = ['regChart', 'retentionChart', 'payChart']
+// 表、图中所用到的键值对
+const keyLabelsOfIndicators = [
+  { prop: 'cdate', label: '日期' },
+  // { prop: 'total', label: '合计/均值' },
+  { prop: 'tuiguang', label: '推广量' },
+  { prop: 'ziran', label: '自然量' }
+]
+// 核心指标card的文本数据
+const tkioCardsText = [
+  { title: '注册趋势', subtitles: ['注册总数', '推广量', '自然量'] },
+  { title: '次日留存趋势', subtitles: ['留存均值', '推广量', '自然量'] },
+  { title: '付费趋势', subtitles: ['付费总值', '推广量', '自然量'] }
+]
+const dailyDataIndicators = ref<IndicatorData[][]>([[{ cdate: '', tuiguang: '0', ziran: '0', total: '0' }]])
+// 用于存放所有日期汇总的核心指标的数据
+const sumdataIndicators = ref<IndicatorData[]>([{ tuiguang: '0', ziran: '0', total: '0' }])
+// 从sumdataIndicators数组中，按total\tuiguang\ziran顺序取出对应的值组成新的数组，用于指标卡片
+const tkioCardsData = computed(() => sumdataIndicators.value.map((item) => {
+  return [item.total, item.tuiguang, item.ziran]
+}))
+/**核心指标的Echarts */
+let chartOfIndicator: EChartsType[] = [] as unknown as EChartsType[]
+// 计算options
+const optionsOfIndicator = computed<ECOption[]>(() => {
+  const options: ECOption[] = [] as ECOption[]
+  // 设置legend data
+  const legendData = keyLabelsOfIndicators.map((item) => item.label)
+  legendData.shift()
+  // 设置xAxis data
+  const xAxisData = dailyDataIndicators.value[0].map((data) => data.cdate as string)
+  dailyDataIndicators.value.forEach((dataList, index) => {
+    // 设置series
+    const keys = keyLabelsOfIndicators.map((item) => item.prop)
+    keys.shift() // 去掉'cdate'
+    const series = [] as (BarSeriesOption | LineSeriesOption)[]
+    keys.forEach((key: string, index) => {
+      const seriesItemData = dataList.map((item: any) => Number(item[key]))
+      const seriesItem: BarSeriesOption | LineSeriesOption = {
+        name: legendData[index],
+        type: 'line',
+        lineStyle: { width: 0.8 },
+        smooth: true,
+        symbol: seriesItemData.length > 1 ? 'none' : 'circle',
+        data: seriesItemData
+      }
+      series.push(seriesItem)
+    })
+    const option: ECOption = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'line'
+        }
+      },
+      yAxis: [
+        {
+          type: 'value',
+          // alignTicks: true,
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: 'gray',
+              width: 0.3,
+            }
+          },
+          axisLabel: {
+            formatter: function (value) {
+              return formatKW(value)
+            }
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color: ['gray'],
+              width: 0.3,
+              type: [2, 2],
+            }
+          }
+        },
+      ],
+      xAxis: {
+        type: 'category',
+        axisTick: {
+          alignWithLabel: true
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: 'gray',
+            width: 0.3,
+          }
+        },
+        data: xAxisData
+      },
+      series,
+      legend: { icon: 'circle', itemHeight: 7, data: legendData, bottom: 5 },
+      grid: { left: 50, right: 0 },
+    }
+    // 将option存入数组中备用
+    options[index] = option
+  })
+  return options
+})
+/**处理请求到的核心指标数据的方法 */
+const reqCoreIndicatorsData = async () => {
+  // 请求体，json格式
+  const res = {
+    cdate: datarange.value, // 日期[1694948996, 1695035410]
+  }
+  const json = JSON.stringify(res)
+  const { data } = await getCoreIndicators(json, reqConfig.value)
+  // 遍历indicators = ['reg', 'retention', 'pay']
+  indicators.forEach((key: string, index) => {
+    // 根据每个key，将key对应的数组中的最后一个元素（IndicatorData 类型）拿出，放到sumdataIndicators里
+    sumdataIndicators.value[index] = data[key].pop()
+    // 其它的元素均放到dailyData里
+    dailyDataIndicators.value[index] = data[key].map((item: IndicatorData) => {
+      // 对cdate进新重新格式化
+      let itemDate = item.cdate
+      itemDate = moment(itemDate).format('YYYY-MM-DD')
+      item.cdate = itemDate
+      return item
+    })
+  })
+  // 对核心指标的3个chart设置option
+  chartOfIndicator.forEach((chart: EChartsType, index) => {
+    chart.setOption(optionsOfIndicator.value[index] as ECOption)
+  })
+}
 /**
  * 日期对比
  */
@@ -331,16 +469,23 @@ const requestTrend = async () => {
 onBeforeMount(() => {
   requestSumdata()
   requestTrend()
+  reqCoreIndicatorsData()
 })
 
 onMounted(() => {
-  // if (!props.hasData) return
+  // 初始化趋势概览的chart
   chartOfTrend = echarts.init(document.getElementById('trendChart'))
+  // 初始化核心指标的3个chart
+  indicatorsChartIds.forEach((id: string, index) => {
+    chartOfIndicator[index] = echarts.init(document.getElementById(id))
+  })
 })
 
-// 处理千和万显示的方法
+// 处理百分比、千和万显示的方法
 const formatKW = (n: number): string => {
-  if (n < 1000) {
+  if (n > 0 && n < 1) {
+    return (n * 100).toFixed(1) + '%'
+  } else if (n < 1000) {
     return n.toString()
   } else if (n < 10000) {
     return (n / 1000).toFixed(1) + 'K'
@@ -383,6 +528,36 @@ const formatKW = (n: number): string => {
       </template>
     </TableChart>
 
+    <div class="title">核心指标效果</div>
+    <el-row class="mt20">
+      <el-col :span="8"
+              class="mb20"
+              style="padding-right: 7.5px;"
+              v-for="(charId, index) in indicatorsChartIds"
+              :key="index">
+        <TableChart :height="410"
+                    :hasData="true"
+                    :hasHeader="true"
+                    :tableData="dailyDataIndicators[index]"
+                    :propLabel="keyLabelsOfIndicators"
+                    :tableId="'indicatorTable' + index"
+                    :tablename="tkioCardsText[index].title"
+                    :datarange="datarange">
+          <template #header>
+            <div :style="{ height: '86px' }">
+              <TkioCard :title="tkioCardsText[index].title"
+                        :sub-titles="tkioCardsText[index].subtitles"
+                        :data="tkioCardsData[index]" />
+            </div>
+          </template>
+          <template #chart>
+            <div :id="charId"
+                 :style="{ height: '255px' }"></div>
+          </template>
+        </TableChart>
+      </el-col>
+    </el-row>
+
     <div class="title">日期对比</div>
     <DateComparer @sendDates="receiveDates"></DateComparer>
     <el-row class="mt20">
@@ -414,33 +589,6 @@ const formatKW = (n: number): string => {
                     :tableId="'compareTable2'" />
       </el-col>
     </el-row>
-
-    <!-- <div class="title">核心指标效果</div> -->
-    <!-- <el-row class="mt20"
-            style="margin-left: -7.5px; margin-right: -7.5px;">
-      <el-col :span="8"
-              class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <TableChart :height="410"
-                    :chartId="'coreMetric1'"
-                    :tableId="'comreMetricTable1'" />
-      </el-col>
-      <el-col :span="8"
-              class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <TableChart :height="410"
-                    :chartId="'coreMetric2'"
-                    :tableId="'comreMetricTable2'" />
-      </el-col>
-      <el-col :span="8"
-              class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <TableChart :height="410"
-                    :chartId="'coreMetric3'"
-                    :tableId="'comreMetricTable3'" />
-      </el-col>
-
-    </el-row> -->
     <!-- <div class="title">核心渠道效果</div> -->
     <!-- <el-row class="mt20"
             style="margin-left: -7.5px; margin-right: -7.5px;">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import FilesSaver from '@/components/FilesSaver.vue'
 import { imgChart, imgTable, imgNodata } from '@/utils/base64'
 
@@ -11,10 +11,10 @@ interface Props {
   height?: number
   hasHeader?: boolean
   hasData: boolean
-  tableId: string,
-  tablename?: string,
-  tableData?: any[],
-  propLabel?: PropLabel[],
+  tableId: string
+  tablename?: string
+  tableData?: any[]
+  propLabel?: PropLabel[]
   datarange?: number[]
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -34,9 +34,15 @@ const rowStyles = () => {
   return { height: '10px' }
 }
 
-onMounted(() => {
-  // if (!props.hasData) return
-})
+// 处理小数为百分比的方法
+const formatNum = (_row: any, _column: any, cellValue: string) => {
+  let n = Number(cellValue)
+  if (n < 1 && n > 0) {
+    return (n * 100).toFixed(2) + '%'
+  } else {
+    return cellValue
+  }
+}
 </script>
 
 <template>
@@ -74,7 +80,8 @@ onMounted(() => {
                 <el-table-column v-for=" item  in  propLabel "
                                  :prop="item.prop"
                                  :label="item.label"
-                                 :key="item.prop" />
+                                 :key="item.prop"
+                                 :formatter="formatNum" />
               </el-table>
             </slot>
           </div>
