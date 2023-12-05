@@ -52,6 +52,10 @@ const getOverview = (options:string, config:Config) => http.post('?api=/data/get
 const comparedByDate = (options:string, config:Config) => http.post('?api=/data/getcontrast', options, config)
 // 数据概览
 const getSumdata = (options:string, config:Config) => http.post('?api=/data/getovsumdata', options, config)
+// 数据概览
+const getCoreIndicators = (options:string, config:Config) => http.post('?api=/data/getdicators', options, config)
+// 渠道对比
+const getchanneldata = (options:string, config:Config) => http.post('?api=/data/getchanneldata', options, config)
 
 // 对外暴露接口
 export{
@@ -72,5 +76,7 @@ export{
   getActivityGroupById,
   getOverview,
   comparedByDate,
-  getSumdata
+  getSumdata,
+  getCoreIndicators,
+  getchanneldata
 }
