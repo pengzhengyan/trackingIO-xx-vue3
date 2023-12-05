@@ -293,14 +293,15 @@ const selectChange = (value: string) => {
                        :src="avatarSrc" />
           </div>
         </div>
-        <div class="main-content "
-             style="margin: 10px 0">
-          <el-scrollbar height="100%"
-                        class="pd25">
-            <router-view />
-            <p style="text-align: center; color: rgb(186, 187, 196); font-size: 12px; padding: 50px 0px 16px;"></p>
-          </el-scrollbar>
-        </div>
+        <el-scrollbar height="100%">
+          <div style="min-width: 1096px;">
+            <div class="main-content pd25"
+                 style="margin: 10px 0">
+              <router-view />
+              <p style="text-align: center; color: rgb(186, 187, 196); font-size: 12px; padding: 50px 0px 16px;"></p>
+            </div>
+          </div>
+        </el-scrollbar>
       </div>
     </div>
   </template>
@@ -405,10 +406,11 @@ const selectChange = (value: string) => {
       height: calc(100vh - 72px);
       margin-top: 72px;
 
-      .pd25 {
-        padding: 0 25px;
 
-      }
+    }
+
+    .pd25 {
+      padding: 0 25px;
     }
   }
 }
