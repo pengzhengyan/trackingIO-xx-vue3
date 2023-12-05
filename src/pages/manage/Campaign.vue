@@ -227,9 +227,11 @@ const handleCopy = (curl: string) => {
 // 初始化页面
 const initPage = async () => {
   const { data: data1 } = await getActivity(reqConfig.value)
+  if (!Array.isArray(data1)) return ElMessage.error('接口返回数据有误')
   activityList.value = data1
 
   const { data: data2 } = await getChannalList(reqConfig.value)
+  if (!Array.isArray(data1)) return ElMessage.error('接口返回数据有误')
   channels.value = data2
 }
 
