@@ -3,30 +3,33 @@ import DateBar from '@/components/DateBar.vue'
 import DateComparer from '@/components/DateComparer.vue'
 import DashBoardCard from '@/components/DashboardCard.vue'
 import TableChart from '@/components/TableChart.vue'
-import { getSumdata, getOverview, getCoreIndicators } from '@/api'
+import MyTabbar from '@/components/MyTabbar.vue'
+import TkioCard from '@/components/TkioCard.vue'
+import NodataCard from '@/components/NodataCard.vue'
+import { getSumdata, getOverview, getCoreIndicators, getchanneldata } from '@/api'
 import { useUserInfo } from '@/pinia/userInfo'
 import { ref, computed, onBeforeMount, onMounted } from 'vue'
 import moment from 'moment'
 // 引入Echarts
 import * as echarts from 'echarts/core'
-import { BarChart, LineChart } from 'echarts/charts'
+import { BarChart, LineChart, PieChart } from 'echarts/charts'
 // 数据集组件, 内置数据转换器组件 (filter, sort)
 import { TitleComponent, TooltipComponent, GridComponent, DatasetComponent, TransformComponent, LegendComponent } from 'echarts/components'
 import { LabelLayout, UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 // 系列类型的定义后缀都为 SeriesOption
-import type { BarSeriesOption, LineSeriesOption } from 'echarts/charts'
+import type { BarSeriesOption, LineSeriesOption, PieSeriesOption } from 'echarts/charts'
 // 组件类型的定义后缀都为 ComponentOption
 import type { TitleComponentOption, TooltipComponentOption, GridComponentOption, DatasetComponentOption, LegendComponentOption } from 'echarts/components'
 import type { ComposeOption, } from 'echarts/core'
 import { EChartsType } from 'echarts/types/dist/shared'
-import MyTabbar from '@/components/MyTabbar.vue'
-import TkioCard from '@/components/TkioCard.vue'
+
 
 // 通过 ComposeOption 来组合出一个只有必须组件和图表的 Option 类型
 type ECOption = ComposeOption<
   | BarSeriesOption
   | LineSeriesOption
+  | PieSeriesOption
   | TitleComponentOption
   | TooltipComponentOption
   | GridComponentOption
@@ -42,6 +45,7 @@ echarts.use([
   TransformComponent,
   BarChart,
   LineChart,
+  PieChart,
   LabelLayout,
   UniversalTransition,
   CanvasRenderer,
@@ -313,13 +317,13 @@ const requestTrend = async () => {
 /**
  * 核心指标效果
  */
-// 定义数组，存放三个核心指标的名字
 type IndicatorData = {
   cdate?: string
   tuiguang: string
   ziran: string
   total: string
 }
+// 定义数组，存放三个核心指标的名字
 const indicators = ['reg', 'retention', 'pay']
 const indicatorsChartIds = ['regChart', 'retentionChart', 'payChart']
 // 表、图中所用到的键值对
@@ -450,7 +454,95 @@ const reqCoreIndicatorsData = async () => {
   chartOfIndicator.forEach((chart: EChartsType, index) => {
     chart.setOption(optionsOfIndicator.value[index] as ECOption)
   })
+
 }
+
+/**
+ * 核心渠道数据对比
+ */
+type PubData = {
+  name: string
+  value: number
+}
+// 渠道对比的指标项
+const pubIndicators = ['dianji', 'tuiguang', 'pay']
+// 渠道对比卡片中charts的id
+const pubChartIds = ['dianjiChartPub', 'tuiguangChartPub', 'payChartPub']
+const pubChartTitles = ['点击量分布', '推广量分布', '总付费金额分布']
+// 渠道数据
+const pubDataList = ref<PubData[][]>([[{ name: '', value: 0 }]])
+/**核心指标的Echarts */
+let chartOfPub: EChartsType[] = [] as unknown as EChartsType[]
+// 计算options
+const optionsOfPub = computed<ECOption[]>(() => {
+  const options: ECOption[] = [] as ECOption[]
+
+  pubDataList.value.forEach((dataList, index) => {
+    // 设置legend data
+    const legendData = dataList.map((item: PubData) => item.name)
+    // 设置series data
+    const seriesItemData = dataList
+
+    const option: ECOption = {
+      tooltip: {
+        trigger: 'item',
+      },
+      series: [
+        {
+          type: 'pie',
+          radius: '60%',
+          data: seriesItemData.sort(function (a, b) {
+            return a.value - b.value;
+          }),
+          label: {
+            show: true,
+            fontSize: 10,
+            formatter(param) {
+              // correct the percentage
+              return param.name + '\n' + ' (' + param.percent + '%)';
+            }
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }
+      ],
+      legend: { icon: 'circle', itemHeight: 7, data: legendData, bottom: 5 },
+      // grid: { left: 50, right: 0 },
+    }
+    // 将option存入数组中备用
+    options[index] = option
+  })
+  return options
+})
+/**处理请求到的核心渠道数据的方法 */
+const reqPubData = async () => {
+  // 请求体，json格式
+  const res = {
+    cdate: datarange.value, // 日期[1694948996, 1695035410]
+  }
+  const json = JSON.stringify(res)
+  const { data } = await getchanneldata(json, reqConfig.value)
+  // 遍历pubIndicators = ['dianji', 'tuiguang', 'pay']
+  pubIndicators.forEach((key: string, index) => {
+    // 匹配到key的元素均放到pubDataList里
+    pubDataList.value[index] = data[key].map((item: PubData) => {
+      // 对value进新重新格式化，转化为数字型
+      let value = Number(item.value)
+      item.value = value
+      return item
+    })
+  })
+  // 对核心渠道指标的3个chart设置option
+  chartOfPub.forEach((chart: EChartsType, index) => {
+    chart.setOption(optionsOfPub.value[index] as ECOption)
+  })
+}
+
 /**
  * 日期对比
  */
@@ -470,6 +562,7 @@ onBeforeMount(() => {
   requestSumdata()
   requestTrend()
   reqCoreIndicatorsData()
+  reqPubData()
 })
 
 onMounted(() => {
@@ -478,6 +571,10 @@ onMounted(() => {
   // 初始化核心指标的3个chart
   indicatorsChartIds.forEach((id: string, index) => {
     chartOfIndicator[index] = echarts.init(document.getElementById(id))
+  })
+  // 初始化渠道效果的3个chart
+  pubChartIds.forEach((id: string, index) => {
+    chartOfPub[index] = echarts.init(document.getElementById(id))
   })
 })
 
@@ -529,11 +626,12 @@ const formatKW = (n: number): string => {
     </TableChart>
 
     <div class="title">核心指标效果</div>
-    <el-row class="mt20">
-      <el-col :span="8"
+    <el-row class="mt20"
+            style="margin-left: -7.5px; margin-right: -7.5px;">
+      <el-col v-for="(charId, index) in indicatorsChartIds"
+              :span="8"
               class="mb20"
-              style="padding-right: 7.5px;"
-              v-for="(charId, index) in indicatorsChartIds"
+              style="padding-left: 7.5px; padding-right: 7.5px;"
               :key="index">
         <TableChart :height="410"
                     :hasData="true"
@@ -558,12 +656,36 @@ const formatKW = (n: number): string => {
       </el-col>
     </el-row>
 
+    <div class="title">核心渠道效果</div>
+    <el-row class="mt20"
+            style="margin-left: -7.5px; margin-right: -7.5px;">
+      <el-col v-for="(chartId, index) in pubChartIds"
+              :span="8"
+              class="mb20"
+              style="padding-left: 7.5px; padding-right: 7.5px;">
+        <NodataCard :height="430"
+                    :hasData="true"
+                    :hasHeader="true">
+          <template #header>
+            <div :style="{ height: '30px', color: '#303133', fontSize: '12px' }">
+              <p>{{ pubChartTitles[index] }} </p>
+            </div>
+          </template>
+          <template #chart>
+            <div :id="chartId"
+                 :style="{ height: '360px' }"></div>
+          </template>
+        </NodataCard>
+      </el-col>
+    </el-row>
+
     <div class="title">日期对比</div>
     <DateComparer @sendDates="receiveDates"></DateComparer>
-    <el-row class="mt20">
+    <el-row class="mt20"
+            style="margin-left: -7.5px; margin-right: -7.5px;">
       <el-col :span="12"
               class="mb20"
-              style="padding-right: 7.5px;">
+              style="padding-left: 7.5px; padding-right: 7.5px;">
         <TableChart :height="320"
                     :hasData="false"
                     :hasHeader="true"
@@ -582,39 +704,14 @@ const formatKW = (n: number): string => {
       </el-col>
       <el-col :span="12"
               class="mb20"
-              style="padding-left: 7.5px;">
+              style="padding-left: 7.5px; padding-right: 7.5px;">
         <TableChart :height="320"
                     :hasData="false"
                     :chartId="'compareByDate2'"
                     :tableId="'compareTable2'" />
       </el-col>
     </el-row>
-    <!-- <div class="title">核心渠道效果</div> -->
-    <!-- <el-row class="mt20"
-            style="margin-left: -7.5px; margin-right: -7.5px;">
-      <el-col :span="8"
-              class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <TableChart :height="430"
-                    :chartId="'corePub1'"
-                    :tableId="'corePubTable1'" />
-      </el-col>
-      <el-col :span="8"
-              class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <TableChart :height="430"
-                    :chartId="'corePub2'"
-                    :tableId="'corePubTable2'" />
-      </el-col>
-      <el-col :span="8"
-              class="mb20"
-              style="padding-left: 7.5px; padding-right: 7.5px;">
-        <TableChart :height="430"
-                    :chartId="'corePub3'"
-                    :tableId="'corePubTable3'" />
-      </el-col>
 
-    </el-row> -->
   </div>
 </template>
 
